@@ -1,0 +1,31 @@
+name: Gerar APK Flet
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Instalar Flet e Dependências
+      run: |
+        pip install flet
+        sudo apt-get update
+        sudo apt-get install -y openjdk-17-jdk
+
+    - name: Criar APK usando o Flet Build
+      run: |
+        flet build apk --no-interactive
+
+    - name: Salvar o arquivo APK gerado
+      uses: actions/upload-artifact@v4
+      with:
+        name: meu-app-flet
+        path: build/apk/*.apk
