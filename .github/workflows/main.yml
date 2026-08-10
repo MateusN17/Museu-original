@@ -20,12 +20,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y openjdk-17-jdk
 
-    - name: Criar APK usando o Flet Build
+    - name: Criar APK forcando o caminho do projeto
       run: |
-        yes | flet build apk .
-
-    - name: Salvar o arquivo APK gerado
-      uses: actions/upload-artifact@v4
-      with:
-        name: meu-app-flet
-        path: build/apk/*.apk
+        yes | flet build apk --module-name main Museu-original
