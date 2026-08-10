@@ -22,7 +22,7 @@ jobs:
 
     - name: Criar APK usando o Flet Build
       run: |
-        yes | flet build apk Museu-original
+        yes | flet build apk .
 
     - name: Salvar o arquivo APK gerado
       uses: actions/upload-artifact@v4
