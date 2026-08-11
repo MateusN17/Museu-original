@@ -436,7 +436,7 @@ def main(page: ft.Page):
         (
             '2011',
             '☢️ O Desastre Nuclear de Fukushima',
-            ["assets/fuku.jpg", "assets/fukushima.jpg"],
+            ["assets/fuku.jpg", "assets/fukushima.jpg","assets/fukus.jpg"],
             'Em 11 de março de 2011, um terremoto de magnitude 9,0 seguido por um tsunami devastador atingiu a Usina Nuclear de Fukushima Daiichi. As ondas inundaram os geradores de emergência, interrompendo o resfriamento dos reatores e provocando o derretimento do núcleo de três unidades e explosões de hidrogênio. Classificado como Nível 7 na escala INES, o acidente forçou a evacuação de mais de 150 mil pessoas e levou o mundo a reavaliar a segurança nuclear frente a desastres naturais.'
         ),
         (
