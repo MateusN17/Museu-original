@@ -5,9 +5,6 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def main(page: ft.Page):
-    # =========================================================================
-    # CORREÇÃO CRÍTICA PARA O APK: Define a pasta raiz de mídias do aplicativo
-    # =========================================================================
     page.assets_dir = "assets"
     
     page.title = "Linha do Tempo - História da Energia Nuclear"
@@ -94,8 +91,6 @@ def main(page: ft.Page):
 
     def criar_no_timeline(ano, titulo, imagens, detalhe_completo):
         foto_capa = imagens[0] if isinstance(imagens, list) else imagens
-
-        # Tratamento do caminho da imagem de capa para o APK
         caminho_capa_correto = foto_capa
         if caminho_capa_correto.startswith("assets/"):
             caminho_capa_correto = caminho_capa_correto.replace("assets/", "/", 1)
@@ -478,15 +473,26 @@ def main(page: ft.Page):
         eventos_painel_2, "A Era Nuclear Moderna (1947 - 1989)"
     )
 
+
     page_view = ft.PageView(
         controls=[painel1, painel2],
         expand=True,
     )
 
-    principal_view = ft.View(route="/", controls=[page_view])
+    conteudo_principal = ft.Column(
+        controls=[page_view],
+        scroll=ft.ScrollMode.AUTO,
+        expand=True,
+    )
+
+    principal_view = ft.View(
+        route="/", 
+        controls=[conteudo_principal]
+    )
 
     page.views.append(principal_view)
     page.update()
+
 
 
 if __name__ == "__main__":
