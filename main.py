@@ -407,7 +407,7 @@ def main(page: ft.Page):
             '1989',
             '☢️ O Incêndio de Vandellòs I',
             ["assets/vand.jpg"],
-            'Em 19 de outubro de 1989, um incêndio na sala de turbinas da Usina Nuclear Vandellòs I destruiu sistemas elétricos e flooded os pavimentos inferiores, ameaçando o resfriamento do reator. Apesar de não ter havido vazamento radioativo nem mortes, o evento foi classificado no Nível 3 da escala INES (o mais grave da história da Espanha) e levou ao fechamento definitivo da usina.'
+            'Em 19 de outubro de 1989, um incêndio na sala de turbinas da Usina Nuclear Vandellòs I destruiu sistemas elétricos e alagou os pavimentos inferiores, ameaçando o resfriamento do reator. Apesar de não ter havido vazamento radioativo nem mortes, o evento foi classificado no Nível 3 da escala INES (o mais grave da história da Espanha) e levou ao fechamento definitivo da usina.'
         ),
         (
             '1999',
