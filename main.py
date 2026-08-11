@@ -5,10 +5,14 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 
 def main(page: ft.Page):
+    # =========================================================================
+    # CORREÇÃO CRÍTICA PARA O APK: Define a pasta raiz de mídias do aplicativo
+    # =========================================================================
+    page.assets_dir = "assets"
+    
     page.title = "Linha do Tempo - História da Energia Nuclear"
     page.theme_mode = ft.ThemeMode.DARK
     page.padding = 10
-
 
     def abrir_tela_detalhes(ano, titulo, imagens, detalhe_completo):
         def voltar(e):
@@ -18,9 +22,15 @@ def main(page: ft.Page):
             imagens = [imagens]
         galeria_fotos1 = []
         for img_path in imagens:
+            caminho_correto = img_path
+            if caminho_correto.startswith("assets/"):
+                caminho_correto = caminho_correto.replace("assets/", "/", 1)
+            if not caminho_correto.startswith("/"):
+                caminho_correto = "/" + caminho_correto
+
             galeria_fotos1.append(
                 ft.Container(
-                    content=ft.Image(src=img_path, height=220, fit="contain"),
+                    content=ft.Image(src=caminho_correto, height=220, fit="contain"),
                     padding=5,
                     border_radius=10,
                 )
@@ -85,6 +95,13 @@ def main(page: ft.Page):
     def criar_no_timeline(ano, titulo, imagens, detalhe_completo):
         foto_capa = imagens[0] if isinstance(imagens, list) else imagens
 
+        # Tratamento do caminho da imagem de capa para o APK
+        caminho_capa_correto = foto_capa
+        if caminho_capa_correto.startswith("assets/"):
+            caminho_capa_correto = caminho_capa_correto.replace("assets/", "/", 1)
+        if not caminho_capa_correto.startswith("/"):
+            caminho_capa_correto = "/" + caminho_capa_correto
+
         return ft.GestureDetector(
             on_tap=lambda e: abrir_tela_detalhes(
                 ano, titulo, imagens, detalhe_completo
@@ -109,7 +126,7 @@ def main(page: ft.Page):
                             border_radius = 16,
                             clip_behavior=ft.ClipBehavior.ANTI_ALIAS,
                             alignment=ft.Alignment.CENTER,
-                            content=ft.Image(src=foto_capa, fit="cover"),
+                            content=ft.Image(src=caminho_capa_correto, fit="cover"),
                         ),
                         ft.Text(
                             ano,
@@ -434,7 +451,7 @@ def main(page: ft.Page):
             'Em debate na Câmara dos Deputados, o país avança para criar o marco legal dos Pequenos Reatores Modulares (SMRs). Uma revolução com tecnologia 100% brasileira para levar energia limpa e contínua à Amazônia e garantir a soberania energética do país. (Fonte: Agência Câmara de Notícias)'
         ),
     ]
-
+    
     def montar_painel(lista_eventos, titulo_painel):
         nos = [criar_no_timeline(*ev) for ev in lista_eventos]
 
@@ -473,4 +490,4 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.app(target=main)
