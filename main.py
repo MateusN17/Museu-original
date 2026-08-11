@@ -345,16 +345,16 @@ def main(page: ft.Page):
         ),
         (
             '1957',
-            '☢️ Acidente em Windscale',
-            ['assets/Windscale.jpg', 'assets/Windscale_Bombeiros.jpg', "assets/ws.jpg", "assets/wis.jpg"],
-            'Em 10 de outubro de 1957, o Reino Unido enfrentou o pior acidente nuclear de sua história quando um incêndio atingiu o reator de Windscale (hoje Sellafield). O fogo queimou durante dias e liberou uma nuvem radioativa que se espalhou pelo Reino Unido e Europa, levando ao descarte de milhões de litros de leite contaminado e revelando ao mundo os riscos da energia atômica sem protocolos de segurança adequados.\nA usina foi renomeada para Sellafields após o acidente'
-        ),  
-        (
-            '1957',
             '☢️ O Desastre de Kyshtym',
             ["assets/Kyshtym.jpg", "assets/ky.jpg"],
             'Em 29 de setembro de 1957, uma falha no sistema de refrigeração de um tanque de resíduos radioativos causou uma explosão química devastadora na usina nuclear de Mayak, perto de Kyshtym, na União Soviética. A explosão lançou uma nuvem tóxica sobre uma área de centenas de quilômetros quadrados (a chamada Pegada Radioativa do Ural Leste), contaminando mais de 270.000 pessoas. O desastre foi mantido em segredo absoluto pelo governo soviético por mais de três décadas, sendo hoje classificado como o terceiro pior acidente nuclear da história, atrás apenas de Chernobyl e Fukushima.'
         ),
+        (
+            '1957',
+            '☢️ Acidente em Windscale',
+            ['assets/Windscale.jpg', 'assets/Windscale_Bombeiros.jpg', "assets/ws.jpg", "assets/wis.jpg"],
+            'Em 10 de outubro de 1957, o Reino Unido enfrentou o pior acidente nuclear de sua história quando um incêndio atingiu o reator de Windscale (hoje Sellafield). O fogo queimou durante dias e liberou uma nuvem radioativa que se espalhou pelo Reino Unido e Europa, levando ao descarte de milhões de litros de leite contaminado e revelando ao mundo os riscos da energia atômica sem protocolos de segurança adequados.\nA usina foi renomeada para Sellafields após o acidente'
+        ),  
         (
             '1958',
             'Navio Savannah',
@@ -375,7 +375,7 @@ def main(page: ft.Page):
         ),
         (
             '1979',
-            '☢️ Three Mile Island:',
+            '☢️ Three Mile Island',
             ["assets/tmi.jpg", "assets/tm.jpg"],
             'Em 28 de março de 1979, o Reator 2 da usina de Three Mile Island, na Pensilvânia, sofreu um derretimento parcial do seu núcleo — o pior acidente na história da energia nuclear comercial dos Estados Unidos. Provocado por uma combinação de falhas mecânicas, erros humanos e sensores confusos, o evento não deixou mortos diretos, mas paralisou a expansão da indústria nuclear americana por décadas e levou a uma reestruturação radical nas normas de segurança do setor.'
         ),
@@ -393,7 +393,7 @@ def main(page: ft.Page):
         ),
         (
             '1987',
-            '☢️ O Acidente com o Césio-137',
+            '☢️ O Acidente Nuclear em Goiânia - Brasil',
             ["assets/goiânia.jpg", "assets/goiania.jpg"],
             'Em setembro de 1987, Goiânia (Goiás) foi palco do maior acidente radioativo em área urbana do mundo e o pior da história do Brasil. Tudo começou quando dois catadores de papel encontraram e abriram um aparelho de radioterapia abandonado num antigo hospital, expondo uma cápsula de Césio-137. O pó brilhante de cor azul fascina a população local, levando à contaminação direta de centenas de pessoas, à morte de quatro vítimas fatais nas primeiras semanas e ao isolamento de toneladas de lixo radioativo.'
         ),
@@ -419,7 +419,7 @@ def main(page: ft.Page):
             '1999',
             '☢️ O Acidente Radiológico de Tokaimura',
             ["assets/tok.jpg","assets/tokai.jpg"],
-            ''
+            'Em 30 de setembro de 1999, um grave acidente de criticidade ocorreu na usina de processamento de combustível nuclear da JCO em Tokaimura, no Japão. Causado por procedimentos ilegais, desrespeito a limites de massa e falta de treinamento adequado, o evento gerou uma reação em cadeia involuntária que expôs três trabalhadores a doses letais de radiação e tornou-se o pior acidente nuclear da história do Japão até o desastre de Fukushima em 2011.'
         ),
         (
             '2000',
@@ -470,12 +470,12 @@ def main(page: ft.Page):
         eventos_painel_1, "As Descobertas Iniciais (1803 - 1945)"
     )
     painel2 = montar_painel(
-        eventos_painel_2, "A Era Nuclear Moderna (1947 - 1989)"
+        eventos_painel_2, "A Era Nuclear Moderna (1947 - Atual)"
     )
 
 
     page_view = ft.PageView(
-        controls=[painel1, painel2],
+        controls=[painel2],
         expand=True,
     )
 
