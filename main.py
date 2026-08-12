@@ -163,23 +163,23 @@ def main(page: ft.Page):
                 "assets/mãoesposa.jpg",
                 "assets/röntgeneesposa.jpg"
             ],
-            "Durante os seus experimentos com o Tubo de Crookes, Wilhelm Röntgen cobriu o tubo com um papelão escuro/preto para ver se a luz visível ainda seria capaz de sair daquela proteção. Contudo aquela contenção, blindou totalmente a luz emitida pelos raios catódicos, mas não era esta a sua maior surpresa naquele dia.\nUma placa de platinocianeto de bário próxima começou a brilhar, mesmo sem nenhuma luz interferindo naquela direção. Röntgen não sabia o que era, mas sabia que raios estavam atravessando a blindagem e acertando a placa, como não sabia sua origem os chamou de: Raios-X.\nApós a descoberta, ele realizou diversos testes, incluindo a famosa primeira radiografia da história: a mão esquerda de sua esposa, Anna Bertha. Ao ver a imagem revelada, exibindo seus ossos e o anel de casamento, ela exclamou que havia visto a própria morte.",
+            "Durante os seus experimentos com o Tubo de Crookes, Wilhelm Röntgen cobriu o tubo com um papelão escuro/preto para ver se a luz visível ainda seria capaz de sair daquela proteção. Contudo aquela contenção blindou totalmente a luz emitida pelos raios catódicos, mas não era esta a sua maior surpresa naquele dia.\nUma placa de platinocianeto de bário próxima começou a brilhar, mesmo sem nenhuma luz interferindo naquela direção. Röntgen não sabia o que era, mas sabia que raios estavam atravessando a blindagem e acertando a placa. Como não sabia sua origem, os chamou de: Raios-X.\nApós a descoberta, ele realizou diversos testes, incluindo a famosa primeira radiografia da história: a mão esquerda de sua esposa, Anna Bertha. Ao ver a imagem revelada, exibindo seus ossos e o anel de casamento, ela exclamou que havia visto a própria morte.",
         ),
         (
             "1896",
             "Radioatividade",
             "assets/Becquerel.jpg",
-            "Antoine Henri Becquerel descobre a radioatividade testando a descoberta de Wilhelm Röntgen. Ele tinha a teoria de que o que Röntgen havia descoberto tinha interferência da luz solar, então tentou simular o mesmo experimento.\nContudo, em Paris, no momento em que Becquerel buscava refutar a teoria de seu colega, o céu estava nublado. Conformado que seus experimentos ficariam para depois, guardou uranita com um filme por três dias.\nSua surpresa ao abrir a gaveta foi ter o filme e a chapa fotográfica completamente bombardeados e modificados pela emissão de algo que só poderiam vir da pedra de Urânio. Sendo assim, os chamou de: Raios Urânicos. Mais adiante, receberam como homenagem o nome de 'Raios de Becquerel'.\nSendo nada mais, nada menos, que as nossas radiações Alfa (α), Beta (β) e Gamma (γ).",
+            "Antoine Henri Becquerel descobre a radioatividade testando a descoberta de Wilhelm Röntgen. Ele tinha a teoria de que o que Röntgen havia descoberto tinha interferência da luz solar, então tentou simular o mesmo experimento.\nContudo, em Paris, no momento em que Becquerel buscava refutar a teoria de seu colega, o céu estava nublado. Conformado que seus experimentos ficariam para depois, guardou uranita com um filme por três dias.\nSua surpresa ao abrir a gaveta foi ter o filme e a chapa fotográfica completamente bombardeados e modificados pela emissão de algo que só poderiam vir da pedra de urânio. Sendo assim, os chamou de: Raios Urânicos. Mais adiante, receberam como homenagem o nome de 'Raios de Becquerel'.\nSendo nada mais, nada menos, que as nossas radiações Alfa (α), Beta (β) e Gamma (γ).",
         ),
         (
             "1897",
-            "O Elétron",
+            "Elétron",
             ["assets/J.J. Thomson.jpg",'assets/ModeloThomson.jpg'],
             "J.J. Thomson foi mais um grande cientista a revolucionar a física usando a Ampola de Crookes. Para realizar seus testes sem interferências, ele evacuou quase todo o ar de dentro do tubo, criando um vácuo extremamente elevado. Ao aplicar campos elétricos e magnéticos no tubo, Thomson percebeu algo impressionante: o feixe de raios catódicos era atraído pela placa elétrica positiva e repelido pela negativa. Isso provou que os raios não eram ondas, mas sim um fluxo de partículas com carga elétrica negativa.\nEssa descoberta provou que o átomo não era indivisível (derrubando o modelo de Dalton) e revelou a existência da primeira partícula subatômica: o elétron. Para explicar sua descoberta, Thomson criou um novo modelo atômico, apelidado de 'Pudim de Passas', no qual os elétrons ficavam incrustados em uma 'massa' ou esfera de carga positiva.",
         ),
         (
             "1898",
-            "Polônio e Radium",
+            "Polônio e Rádio",
             "assets/Pierre e Marie.webp",
             "Inspirada pela recente descoberta de Becquerel sobre o urânio, Marie Curie — ao lado de seu marido, Pierre Curie — decidiu investigar se outros elementos também emitiam essa radiação misteriosa. Trabalhando em condições precárias em um galpão improvisado em Paris, o casal analisou toneladas do minério pitchblenda (pechblenda).\nEm julho de 1898, após um exaustivo trabalho de separação química, eles isolaram um novo elemento radioativo, cerca de 400 vezes mais ativo que o urânio. Em homenagem à pátria de Marie, o elemento foi batizado de Polônio.\nContudo, ao notar que os resíduos restantes continuavam extremamente radioativos, o casal continuou os experimentos. Em dezembro do mesmo ano, descobriram o Rádio, um elemento impressionantes mil vezes mais radioativo que o urânio e que brilhava no escuro.\nEssas descobertas não apenas confirmaram que a radioatividade era uma propriedade atômica do próprio elemento, mas também renderam ao casal o Prêmio Nobel de Física de 1903 e abriram as portas para a medicina nuclear e o tratamento do câncer.",
         ),
@@ -221,13 +221,13 @@ def main(page: ft.Page):
         ),
         (
             "1913",
-            "A Descoberta dos Isótopos",
+            "Descoberta dos Isótopos",
             "assets/soddy.webp",
             "Enquanto estudava as cadeias de desintegração radioativa, o químico inglês Frederick Soddy percebeu algo intrigante: existiam elementos com massas atômicas diferentes, mas que possuíam exatamente as mesmas propriedades químicas e ocupavam o mesmo lugar na Tabela Periódica.\n\nSoddy os batizou de 'Isótopos' (do grego 'no mesmo lugar'). Essa descoberta provou que a identidade química de um elemento não depende da sua massa total. O conceito de isótopos tornou-se a espinha dorsal de toda a tecnologia nuclear moderna, sendo fundamental para o enriquecimento de urânio e para a medicina nuclear.",
         ),
         (
             "1913",
-            "Lei de Moseley e o Número Atômico",
+            "Lei de Moseley e Número Atômico",
             "assets/Moseley.jpg",
             "Utilizando a recente técnica de difração de Raios-X, o jovem físico Henry Moseley analisou os raios emitidos por diversos metais e descobriu uma relação matemática perfeita entre a frequência desses raios e a carga elétrica do núcleo atômico.\n\nMoseley provou que o que define as propriedades de um elemento na Tabela Periódica não é a sua massa atômica (como Dmitri Mendeleev achava), mas sim o número de prótons em seu núcleo — surgindo assim o conceito oficial de Número Atômico (Z). Essa descoberta reorganizou a Tabela Periódica de forma definitiva.",
         ),
@@ -235,11 +235,11 @@ def main(page: ft.Page):
             "1919",
             "Primeira Transmutação Artificial",
             "assets/rutherford3.jpg",
-            "Pela primeira vez na história, o ser humano conseguiu realizar o antigo sonho dos alquimistas: transformar um elemento químico em outro. Ernest Rutherford bombardeou átomos do gás Nitrogênio com partículas alfa (núcleos de hélio) e observou que a colisão transformou o Nitrogênio em um isótopo de Oxigênio, liberando um núcleo de hidrogênio no processo.\n\nCom esse experimento, Rutherford não apenas realizou a primeira transmutação artificial da história, mas também identificou formalmente a partícula responsável por essa carga positiva emitida: o Próton. Foi o marco inicial da física nuclear de reação.",
+            "Pela primeira vez na história, o ser humano conseguiu realizar o antigo sonho dos alquimistas: transformar um elemento químico em outro. Ernest Rutherford bombardeou átomos do gás nitrogênio com partículas alfa (núcleos de hélio) e observou que a colisão transformou o nitrogênio em um isótopo de oxigênio, liberando um núcleo de hidrogênio no processo.\n\nCom esse experimento, Rutherford não apenas realizou a primeira transmutação artificial da história, mas também identificou formalmente a partícula responsável por essa carga positiva emitida: o próton. Foi o marco inicial da física nuclear de reação.",
         ),
         (
             "1930",
-            "O Cíclotron",
+            "Cíclotron",
             ["assets/Lawrence.jpg","assets/Ciclotron.jpg"],
             "De início, Ernest Lawrence teve a ideia teórica inicial no começo de 1929, após ler um artigo do físico holandês Rolf Widerøe sobre um acelerador linear.\nE então, Lawrence e seu estudante, Niels Edlefsen, construíram o primeiríssimo modelo experimental \n(feito de vidro e latão) na Universidade da Califórnia em Berkeley, que funcionou de forma muito rudimentar no outono de 1930.",
         ),
@@ -269,7 +269,7 @@ def main(page: ft.Page):
             "Hahn-Strassman.jpg",
             "assets/LiseFrischSeaborg.jpg",
             ],
-            "Em Berlim, Otto Hahn e Fritz Strassmann bombardearam átomos de Urânio com nêutrons e, para surpresa de todos, encontraram o elemento Bário entre os produtos da reação — um elemento com quase metade da massa do urânio. Sem saber como explicar o resultado, Hahn escreveu para sua colega de longa data, a física Lise Meitner, que havia fugido da Alemanha nazista para a Suécia meses antes devido à sua origem judaica.\n\nAo lado do seu sobrinho, o físico Otto Frisch, Meitner decifrou o enigma durante uma caminhada na neve: o núcleo de urânio não havia apenas emitido partículas, ele havia se partido ao meio! Eles batizaram o processo de 'Fissão Nuclear' e usaram a equação de Einstein ($E = mc^2$) para provar que a fissão libertava uma quantidade colossal de energia, abrindo as portas para a era da energia e das armas nucleares.",
+            "Em Berlim, Otto Hahn e Fritz Strassmann bombardearam átomos de Urânio com nêutrons e, para surpresa de todos, encontraram o elemento Bário entre os produtos da reação — um elemento com quase metade da massa do urânio. Sem saber como explicar o resultado, Hahn escreveu para sua colega de longa data, a física Lise Meitner, que havia fugido da Alemanha nazista para a Suécia meses antes devido à sua origem judaica.\n\nAo lado do seu sobrinho, o físico Otto Frisch, Meitner decifrou o enigma durante uma caminhada na neve: o núcleo de urânio não havia apenas emitido partículas, ele havia se partido ao meio! Eles batizaram o processo de 'Fissão Nuclear' e usaram a equação de Einstein E=mc² para provar que a fissão libertava uma quantidade colossal de energia, abrindo as portas para a era da energia e das armas nucleares.",
         ),
         (
             "1942",
@@ -333,7 +333,7 @@ def main(page: ft.Page):
         ),
         (
             '1956',
-            '☢️ Calder Hall',
+            'Calder Hall',
             ['assets/Calder Hall.jpg', "assets/Chsll.jpg", "assets/CalHall.jpg"],
             'Em 17 de outubro de 1956, o Reino Unido inaugurou Calder Hall, a primeira usina nuclear do mundo a gerar eletricidade em escala industrial e comercial contínua. Operando com reatores do tipo Magnox, a central forneceu energia para a rede elétrica britânica por quase 50 anos, tornando-se o grande marco da transição da energia nuclear para o consumo de massa.'
         ),
@@ -345,7 +345,7 @@ def main(page: ft.Page):
         ),
         (
             '1957',
-            '☢️ O Desastre de Kyshtym',
+            '☢️ Desastre de Kyshtym',
             ["assets/Kyshtym.jpg", "assets/ky.jpg"],
             'Em 29 de setembro de 1957, uma falha no sistema de refrigeração de um tanque de resíduos radioativos causou uma explosão química devastadora na usina nuclear de Mayak, perto de Kyshtym, na União Soviética. A explosão lançou uma nuvem tóxica sobre uma área de centenas de quilômetros quadrados (a chamada Pegada Radioativa do Ural Leste), contaminando mais de 270.000 pessoas. O desastre foi mantido em segredo absoluto pelo governo soviético por mais de três décadas, sendo hoje classificado como o terceiro pior acidente nuclear da história, atrás apenas de Chernobyl e Fukushima.'
         ),
@@ -375,7 +375,7 @@ def main(page: ft.Page):
         ),
         (
             '1979',
-            '☢️ Three Mile Island',
+            '☢️ Incidente de Three Mile Island',
             ["assets/tmi.jpg", "assets/tm.jpg"],
             'Em 28 de março de 1979, o Reator 2 da usina de Three Mile Island, na Pensilvânia, sofreu um derretimento parcial do seu núcleo — o pior acidente na história da energia nuclear comercial dos Estados Unidos. Provocado por uma combinação de falhas mecânicas, erros humanos e sensores confusos, o evento não deixou mortos diretos, mas paralisou a expansão da indústria nuclear americana por décadas e levou a uma reestruturação radical nas normas de segurança do setor.'
         ),
@@ -393,9 +393,9 @@ def main(page: ft.Page):
         ),
         (
             '1987',
-            '☢️ O Acidente Nuclear em Goiânia - Brasil',
+            '☢️ Acidente Nuclear em Goiânia - Brasil',
             ["assets/goiânia.jpg", "assets/goiania.jpg"],
-            'Em setembro de 1987, Goiânia (Goiás) foi palco do maior acidente radioativo em área urbana do mundo e o pior da história do Brasil. Tudo começou quando dois catadores de papel encontraram e abriram um aparelho de radioterapia abandonado num antigo hospital, expondo uma cápsula de Césio-137. O pó brilhante de cor azul fascina a população local, levando à contaminação direta de centenas de pessoas, à morte de quatro vítimas fatais nas primeiras semanas e ao isolamento de toneladas de lixo radioativo.'
+            'Em setembro de 1987, Goiânia (Goiás) foi palco do maior acidente radioativo em área urbana do mundo e o pior da história do Brasil. Tudo começou quando dois catadores de sucata encontraram e abriram um aparelho de radioterapia abandonado num antigo hospital, expondo uma cápsula de Césio-137. O pó brilhante de cor azul fascina a população local, levando à contaminação direta de centenas de pessoas, à morte de quatro vítimas fatais nas primeiras semanas e ao isolamento de toneladas de lixo radioativo.'
         ),
         (
             '1989',
@@ -405,19 +405,19 @@ def main(page: ft.Page):
         ),#"assets/"
         (
             '1989',
-            '☢️ O Incêndio de Vandellòs I',
+            '☢️ Incêndio de Vandellòs I',
             ["assets/vand.jpg"],
             'Em 19 de outubro de 1989, um incêndio na sala de turbinas da Usina Nuclear Vandellòs I destruiu sistemas elétricos e alagou os pavimentos inferiores, ameaçando o resfriamento do reator. Apesar de não ter havido vazamento radioativo nem mortes, o evento foi classificado no Nível 3 da escala INES (o mais grave da história da Espanha) e levou ao fechamento definitivo da usina.'
         ),
         (
             '1999',
-            '☢️ O Acidente Radiológico de Yanango ',
+            '☢️ Acidente Radiológico de Yanango ',
             ["assets/yanango.jpg"],
-            'Em 20 de fevereiro de 1999, um dos piores acidentes radiológicos industriais da América Latina ocorreu na usina hidrelétrica de Yanango, no Peru. Um soldador encontrou uma fonte radioativa selada de Iridium-192 usada em radiografia industrial e, sem saber do perigo, colocou a cápsula no bolso da calça por horas. A exposição extrema resultou em amputação, queimaduras severas por radiação e graves lesões permanentes no trabalhador e em sua família.'
+            'Em 20 de fevereiro de 1999, um dos piores acidentes radiológicos industriais da América Latina ocorreu na usina hidrelétrica de Yanango, no Peru. Um soldador encontrou uma fonte radioativa selada de Irídio-192 usada em radiografia industrial e, sem saber do perigo, colocou a cápsula no bolso da calça por horas. A exposição extrema resultou em amputação, queimaduras severas por radiação e graves lesões permanentes no trabalhador e em sua família.'
         ),
         (
             '1999',
-            '☢️ O Acidente Radiológico de Tokaimura',
+            '☢️ Acidente Radiológico de Tokaimura',
             ["assets/tok.jpg","assets/tokai.jpg"],
             'Em 30 de setembro de 1999, um grave acidente de criticidade ocorreu na usina de processamento de combustível nuclear da JCO em Tokaimura, no Japão. Causado por procedimentos ilegais, desrespeito a limites de massa e falta de treinamento adequado, o evento gerou uma reação em cadeia involuntária que expôs três trabalhadores a doses letais de radiação e tornou-se o pior acidente nuclear da história do Japão até o desastre de Fukushima em 2011.'
         ),
@@ -429,19 +429,19 @@ def main(page: ft.Page):
         ),
         (
             '2006',
-            '☢️ O Incidente de Forsmark',
-            ["assets/forsmark.jpg"],
+            '☢️ Incidente de Forsmark',
+            ["assets/forsmark.jpg", "assets/Fosmark1.jpg"],
             'Em 25 de julho de 2006, um curto-circuito na usina nuclear de Forsmark provocou a perda de energia externa e a falha simultânea de dois dos quatro geradores a diesel de emergência. O reator ficou a apenas 20 minutos de um derretimento parcial do núcleo devido ao apagão nos sistemas de segurança. O evento, classificado como Nível 2 na escala INES, revelou falhas graves de redundância e levou ao desligamento preventivo de dezenas de reatores ao redor do mundo para auditorias urgentes.'
         ),
         (
             '2011',
-            '☢️ O Desastre Nuclear de Fukushima',
+            '☢️ Desastre Nuclear de Fukushima',
             ["assets/fuku.jpg", "assets/fukushima.jpg","assets/fukus.jpg"],
             'Em 11 de março de 2011, um terremoto de magnitude 9,0 seguido por um tsunami devastador atingiu a Usina Nuclear de Fukushima Daiichi. As ondas inundaram os geradores de emergência, interrompendo o resfriamento dos reatores e provocando o derretimento do núcleo de três unidades e explosões de hidrogênio. Classificado como Nível 7 na escala INES, o acidente forçou a evacuação de mais de 150 mil pessoas e levou o mundo a reavaliar a segurança nuclear frente a desastres naturais.'
         ),
         (
             '2026',
-            'O Futuro do Átomo no Brasil',
+            'Futuro do Átomo no Brasil',
             ["assets/2026.jpg"],
             'Em debate na Câmara dos Deputados, o país avança para criar o marco legal dos Pequenos Reatores Modulares (SMRs). Uma revolução com tecnologia 100% brasileira para levar energia limpa e contínua à Amazônia e garantir a soberania energética do país. (Fonte: Agência Câmara de Notícias)'
         ),
@@ -475,7 +475,7 @@ def main(page: ft.Page):
 
 
     page_view = ft.PageView(
-        controls=[painel2],
+        controls=[painel1, painel2],
         expand=True,
     )
 
@@ -496,4 +496,4 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.run(main)
