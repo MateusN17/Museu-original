@@ -1,5 +1,6 @@
 import ssl
 import flet as ft
+import flet_video as ftv
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -9,12 +10,79 @@ def main(page: ft.Page):
     
     page.title = "Linha do Tempo - História da Energia Nuclear"
     page.theme_mode = ft.ThemeMode.DARK
-    page.padding = 10
+    page.padding = 0
+
+    logo_inicial = ft.Container(
+        expand=True,
+        alignment=ft.Alignment.CENTER,
+        bgcolor="#07151a",
+        content=ft.Image(
+            src="/museu-logo.svg",
+            width=300,
+            height=220,
+            fit=ft.BoxFit.CONTAIN,
+            semantics_label="Logo do Museu de Ciências Nucleares",
+        ),
+    )
+
+    def remover_logo_inicial(e=None):
+        logo_inicial.visible = False
+        page.update()
+
+    def criar_fundo_animado():
+        return ftv.Video(
+            expand=True,
+            playlist=[ftv.VideoMedia("fundo_animado_loop.mp4")],
+            playlist_mode=ftv.PlaylistMode.LOOP,
+            autoplay=True,
+            muted=True,
+            volume=0,
+            controls=None,
+            fit=ft.BoxFit.COVER,
+            fill_color="#0b4652",
+            on_load=remover_logo_inicial,
+            on_error=remover_logo_inicial,
+        )
+
+    # O mesmo controle de vídeo permanece montado enquanto apenas o conteúdo
+    # da frente é trocado entre menu, história e detalhes.
+    fundo_animado = criar_fundo_animado()
+    conteudo_tela = ft.Container(expand=True, bgcolor="#00000000")
+
+    def mostrar_tela(controle):
+        conteudo_tela.content = controle
+        page.update()
+
+    def criar_barra_superior(titulo, acao_voltar):
+        return ft.Container(
+            top=0,
+            left=0,
+            right=0,
+            height=60,
+            padding=ft.Padding(left=8, right=18),
+            bgcolor="#B807151A",
+            content=ft.Row(
+                spacing=6,
+                vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                controls=[
+                    ft.IconButton(
+                        icon=ft.Icons.ARROW_BACK,
+                        tooltip="Voltar",
+                        on_click=acao_voltar,
+                    ),
+                    ft.Text(
+                        titulo,
+                        size=22,
+                        weight=ft.FontWeight.W_500,
+                        color="#ffffff",
+                    ),
+                ],
+            ),
+        )
 
     def abrir_tela_detalhes(ano, titulo, imagens, detalhe_completo):
         def voltar(e):
-            page.views.pop()
-            page.update()
+            mostrar_tela(historia_tela)
         if isinstance(imagens, str):
             imagens = [imagens]
         galeria_fotos1 = []
@@ -27,67 +95,118 @@ def main(page: ft.Page):
 
             galeria_fotos1.append(
                 ft.Container(
-                    content=ft.Image(src=caminho_correto, height=220, fit="contain"),
-                    padding=5,
-                    border_radius=10,
+                    width=260,
+                    height=220,
+                    padding=10,
+                    bgcolor="#CC12242B",
+                    border=ft.Border.all(1, "#00adb5"),
+                    border_radius=12,
+                    alignment=ft.Alignment.CENTER,
+                    content=ft.Image(
+                        src=caminho_correto,
+                        width=235,
+                        height=195,
+                        fit=ft.BoxFit.CONTAIN,
+                    ),
                 )
             )
-        tela_detalhes = ft.View(
-            route=f"/detalhes/{ano}",
-            controls=[
-                ft.AppBar(
-                    title=ft.Text(f"{ano} - {titulo}"),
-                    bgcolor="#2a2a2a",
-                    leading=ft.IconButton(
-                        icon=ft.Icons.ARROW_BACK,
-                        on_click=voltar,
+        painel_detalhes = ft.Container(
+            width=1250,
+            padding=ft.Padding(top=24, right=28, bottom=28, left=28),
+            bgcolor="#E8061820",
+            border=ft.Border.all(1, "#00adb5"),
+            border_radius=18,
+            shadow=ft.BoxShadow(blur_radius=18, color="#000000aa"),
+            content=ft.Column(
+                spacing=16,
+                controls=[
+                    ft.Row(
+                        spacing=12,
+                        controls=[
+                            ft.Container(
+                                width=8,
+                                height=48,
+                                bgcolor="#00adb5",
+                                border_radius=4,
+                            ),
+                            ft.Column(
+                                spacing=2,
+                                controls=[
+                                    ft.Text(
+                                        titulo,
+                                        size=24,
+                                        weight=ft.FontWeight.BOLD,
+                                        color="#ffffff",
+                                    ),
+                                    ft.Text(
+                                        f"Evento historico - {ano}",
+                                        size=14,
+                                        color="#91b7c0",
+                                    ),
+                                ],
+                            ),
+                        ],
                     ),
-                ),
+                    ft.Divider(color="#00adb5", height=1),
+                    ft.Text(
+                        "Galeria / Registros Historicos",
+                        size=16,
+                        weight=ft.FontWeight.BOLD,
+                        color="#5ee7ee",
+                    ),
+                    ft.Row(
+                        controls=galeria_fotos1,
+                        scroll="always",
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        spacing=16,
+                    ),
+                    ft.Container(
+                        padding=18,
+                        bgcolor="#EE0A2933",
+                        border=ft.Border.all(1, "#235b66"),
+                        border_radius=12,
+                        content=ft.Column(
+                            spacing=10,
+                            controls=[
+                                ft.Text(
+                                    "Detalhes do Evento Historico",
+                                    size=18,
+                                    weight=ft.FontWeight.BOLD,
+                                    color="#5ee7ee",
+                                ),
+                                ft.Text(
+                                    detalhe_completo,
+                                    size=16,
+                                    color="#f1f5f6",
+                                    selectable=True,
+                                ),
+                            ],
+                        ),
+                    ),
+                ],
+            ),
+        )
+
+        tela_detalhes = ft.Stack(
+            expand=True,
+            fit=ft.StackFit.EXPAND,
+            alignment=ft.Alignment.TOP_LEFT,
+            controls=[
                 ft.ListView(
                     expand=True,
-                    padding=20,
+                    padding=ft.Padding(top=72, right=20, bottom=25, left=20),
                     controls=[
-                        ft.Text(
-                            ano,
-                            size=32,
-                            weight=ft.FontWeight.BOLD,
-                            color="#00adb5",
-                        ),
-                        ft.Text(
-                            titulo,
-                            size=18,
-                            weight=ft.FontWeight.W_500,
-                            color="#ffffff",
-                        ),
-                        ft.Divider(color="#00adb5", height=20),
-                        ft.Text("Galeria / Registros Históricos:", size=14, color="#b3b3b3"),
                         ft.Row(
-                            controls=galeria_fotos1,
-                            scroll="always",
                             alignment=ft.MainAxisAlignment.CENTER,
-                            spacing=15,
-                        ),
-                        
-                        ft.Divider(height=20, color="transparent"),
-                        ft.Text(
-                            "Detalhes do Evento Histórico:",
-                            size=18,
-                            weight=ft.FontWeight.BOLD,
-                            color="#00adb5",
-                        ),
-                        ft.Text(
-                            detalhe_completo,
-                            size=16,
-                            color="#e0e0e0",
-                            selectable=True,
+                            controls=[painel_detalhes],
                         ),
                     ],
                 ),
+                criar_barra_superior(f"{ano} - {titulo}", voltar),
             ],
         )
 
-        page.views.append(tela_detalhes)
-        page.update()
+        mostrar_tela(tela_detalhes)
 
     def criar_no_timeline(ano, titulo, imagens, detalhe_completo):
         foto_capa = imagens[0] if isinstance(imagens, list) else imagens
@@ -204,7 +323,7 @@ def main(page: ft.Page):
         (
             "1905",
             "Relatividade",
-            "assets/Einstein.jpg",
+            "assets/Einstein_otimizado.jpg",
             "Em seu 'Ano Miraculoso' de 1905, Albert Einstein publicou a equação mais famosa da história da ciência: E = mc². Ela demonstrou que massa e energia são equivalentes e que uma quantidade minúscula de matéria pode se transformar em uma quantidade colossal de energia.\nEssa teoria resolveu o maior mistério da época: de onde vinha a energia inesgotável emitida pelos elementos radioativos descobertos pelo casal Curie. A física teórica de Einstein forneceu a base matemática necessária para entender a fissão nuclear e a liberação de energia do núcleo do átomo, alterando para sempre o rumo da humanidade.",
         ),
         (
@@ -485,12 +604,110 @@ def main(page: ft.Page):
         expand=True,
     )
 
-    principal_view = ft.View(
-        route="/", 
-        controls=[conteudo_principal]
+    def voltar_menu(e=None):
+        """Retorna da linha do tempo para o menu principal."""
+        mostrar_tela(criar_tela_menu())
+
+    historia_tela = ft.Stack(
+        expand=True,
+        fit=ft.StackFit.EXPAND,
+        alignment=ft.Alignment.TOP_LEFT,
+        controls=[
+            ft.Container(
+                expand=True,
+                padding=ft.Padding(top=48, right=10, bottom=10, left=10),
+                content=conteudo_principal,
+            ),
+            criar_barra_superior("História da Radiação", voltar_menu),
+        ],
     )
 
-    page.views.append(principal_view)
+    def abrir_historia(e=None):
+        """Abre a linha do tempo que já existia no aplicativo."""
+        mostrar_tela(historia_tela)
+
+    def criar_tela_menu():
+        # A arte foi criada em 16:9. O layout proporcional mantém a área
+        # clicável alinhada ao primeiro botão em diferentes tamanhos de janela.
+        area_historia = ft.GestureDetector(
+            on_tap=abrir_historia,
+            content=ft.Container(
+                expand=True,
+                bgcolor="#00000000",
+                tooltip="História da Radiação",
+            ),
+        )
+
+        area_clicavel = ft.Column(
+            expand=True,
+            spacing=0,
+            controls=[
+                ft.Container(expand=8),
+                ft.Row(
+                    expand=17,
+                    spacing=0,
+                    controls=[
+                        ft.Container(expand=13),
+                        ft.Container(content=area_historia, expand=34),
+                        ft.Container(expand=53),
+                    ],
+                ),
+                ft.Container(expand=75),
+            ],
+        )
+
+        return ft.Stack(
+            expand=True,
+            fit=ft.StackFit.EXPAND,
+            alignment=ft.Alignment.TOP_LEFT,
+            controls=[
+                ft.Container(
+                    expand=True,
+                    bgcolor="#00000000",
+                    content=ft.Stack(
+                        expand=True,
+                        fit=ft.StackFit.EXPAND,
+                        alignment=ft.Alignment.TOP_LEFT,
+                        controls=[
+                            ft.Image(
+                                src="/Historia da Radiacao (2).png",
+                                expand=True,
+                                fit=ft.BoxFit.COVER,
+                                visible=False,
+                                semantics_label="Plano de fundo do Museu da Radiação",
+                            ),
+                            ft.Image(
+                                src="/menu_otimizado.webp",
+                                expand=True,
+                                fit=ft.BoxFit.CONTAIN,
+                                semantics_label="Menu principal do Museu da Radiação",
+                            ),
+                            area_clicavel,
+                        ],
+                    ),
+                ),
+            ],
+        )
+
+    root_view = ft.View(
+        route="/",
+        padding=0,
+        controls=[
+            ft.Stack(
+                expand=True,
+                fit=ft.StackFit.EXPAND,
+                alignment=ft.Alignment.TOP_LEFT,
+                controls=[
+                    fundo_animado,
+                    logo_inicial,
+                    ft.Container(expand=True, bgcolor="#07151a22"),
+                    conteudo_tela,
+                ],
+            ),
+        ],
+    )
+    page.views.append(root_view)
+    conteudo_tela.content = criar_tela_menu()
     page.update()
 
 

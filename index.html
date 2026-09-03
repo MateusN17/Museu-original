@@ -1,0 +1,2451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>A História da Radiação | Museu</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════ DESIGN TOKENS ═══════════════════════ */
+:root {
+  --cream: #1A1820; --cream-dark: #12111A;
+  --lavender: #C4B5D8; --rose: #E8B4B8; --mint: #7ECDB5;
+  --peach: #F0C8A0; --gold: #D8CA9A; --blue: #8EC0D8;
+  --gray-blue: #8AAABE; --sage: #A8CC98; --gray-rose: #D4A0AC;
+  --steel: #8AA0B0; --future: #A8B8D8; --danger: #E09098;
+  --amber: #D0C0A0;
+  --text: #F0ECE8; --text-light: #B8B0A8; --text-muted: #78706A;
+  --card-bg: rgba(35,32,42,0.92); --card-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  --radius: 20px; --radius-sm: 12px;
+  --speed: 1; --font-base: 16px;
+  --header-h: 64px; --progress-h: 4px;
+  --card-w: 380px; --card-gap: 100px;
+}
+/* ═══════════════════════ RESET & BASE ═══════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:var(--font-base);-webkit-tap-highlight-color:transparent}
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  background:var(--cream);color:var(--text);
+  overflow:hidden;height:100vh;width:100vw;
+  cursor:grab;user-select:none;-webkit-user-select:none;
+  transition:background .5s,color .5s;
+}
+body.grabbing{cursor:grabbing}
+/* Segundo tema: paleta oficial extraída da marca do museu. */
+body.high-contrast{
+  --cream:#FEFDFC;--cream-dark:#D0E2DC;
+  --lavender:#006647;--rose:#FFCC00;--mint:#257C62;
+  --peach:#FFE067;--gold:#FFD326;--blue:#4C937D;
+  --gray-blue:#71AA99;--sage:#9FC5BA;--gray-rose:#FFDA47;
+  --steel:#257C62;--future:#006647;--danger:#FFCC00;--amber:#FEE789;
+  --text:#003D2A;--text-light:#257C62;--text-muted:#4C937D;
+  --card-bg:rgba(254,253,252,.94);
+  --card-shadow:0 10px 34px rgba(0,102,71,.14);
+  background:
+    radial-gradient(circle at 18% 20%,rgba(255,204,0,.12),transparent 32%),
+    radial-gradient(circle at 82% 72%,rgba(0,102,71,.13),transparent 38%),
+    var(--cream);
+}
+body.high-contrast .settings-panel{border:1px solid rgba(0,102,71,.14)}
+body.high-contrast .progress-era{
+  color:#006647!important;background:rgba(254,253,252,.82);
+  border-color:rgba(0,102,71,.14)
+}
+body.high-contrast .event-card{border-color:rgba(0,102,71,.14)}
+body.high-contrast .event-node.active .event-card{
+  box-shadow:0 16px 40px rgba(0,102,71,.16),0 0 24px rgba(255,204,0,.18)
+}
+body.high-contrast .card-year,
+body.high-contrast .card-toggle{color:#006647}
+body.high-contrast .reset-btn:active,
+body.high-contrast .restart-btn:active{
+  background:#FFCC00;color:#003D2A;border-color:#FFCC00
+}
+body.high-contrast .restart-btn{border-color:#006647;color:#006647}
+
+/* ═══════════════════════ HEADER ═══════════════════════ */
+.header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--header-h);display:flex;align-items:center;justify-content:flex-end;
+  padding:0 32px;
+  background:transparent;
+  pointer-events:none;
+}
+.header>*{pointer-events:auto}
+.settings-btn{
+  width:44px;height:44px;border:none;border-radius:50%;
+  background:var(--card-bg);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.45rem;color:var(--text);cursor:pointer;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  transition:transform .2s,box-shadow .2s;line-height:1;
+}
+.settings-btn:active{transform:scale(.92)}
+
+/* ═══════════════════════ PROGRESS BAR & ERA INDICATOR (BOTTOM) ═══════════════════════ */
+.progress{
+  position:fixed;bottom:0;left:0;right:0;z-index:99;
+  height:var(--progress-h);background:var(--cream-dark);
+}
+.progress-fill{
+  height:100%;width:100%;border-radius:0 2px 2px 0;
+  background:linear-gradient(90deg,#006647,#257C62,#4C937D,#71AA99,#257C62,#006647);
+  background-size:300% 100%;transform:scaleX(0);transform-origin:left center;
+  will-change:transform;
+}
+.progress-era{
+  position:fixed;bottom:78px;left:32px;z-index:99;
+  font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+  color:var(--text-muted);opacity:0;transition:opacity .4s,color .4s;
+  background:rgba(26,24,32,0.65);backdrop-filter:blur(8px);
+  padding:4px 12px;border-radius:12px;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.progress-era.visible{opacity:1}
+
+/* ═══════════════════════ SETTINGS PANEL ═══════════════════════ */
+.settings-panel{
+  position:fixed;top:var(--header-h);right:16px;z-index:101;
+  width:280px;padding:24px;
+  background:var(--card-bg);backdrop-filter:blur(20px);
+  border-radius:0 0 var(--radius) var(--radius);
+  box-shadow:0 12px 40px rgba(0,0,0,.1);
+  transform:translateY(-120%);opacity:0;
+  transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .3s;
+}
+.settings-panel.open{transform:translateY(0);opacity:1}
+.settings-panel h3{font-size:.85rem;font-weight:600;margin-bottom:16px;letter-spacing:-.01em}
+.settings-panel label{
+  display:flex;flex-direction:column;gap:6px;
+  font-size:.75rem;font-weight:500;color:var(--text-light);
+  margin-bottom:14px;
+}
+.settings-panel input[type=range]{
+  -webkit-appearance:none;width:100%;height:6px;
+  border-radius:3px;background:var(--cream-dark);outline:none;
+  cursor:pointer;
+}
+.settings-panel input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:20px;height:20px;
+  border-radius:50%;background:var(--lavender);cursor:pointer;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+.settings-panel .toggle-row{
+  display:flex;align-items:center;gap:10px;
+  flex-direction:row;margin-bottom:14px;
+}
+.toggle{
+  position:relative;width:44px;height:24px;
+  background:var(--cream-dark);border-radius:12px;
+  cursor:pointer;transition:background .3s;flex-shrink:0;border:none;
+}
+.toggle.active{background:var(--mint)}
+.toggle::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:18px;height:18px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);
+  transition:transform .3s;
+}
+.toggle.active::after{transform:translateX(20px)}
+.reset-btn{
+  width:100%;padding:10px;border:none;border-radius:var(--radius-sm);
+  background:var(--cream-dark);color:var(--text-light);
+  font-family:inherit;font-size:.75rem;font-weight:600;
+  cursor:pointer;transition:background .2s;
+}
+.reset-btn:active{background:var(--rose);color:#fff}
+
+/* ═══════════════════════ EVENT MODAL ═══════════════════════ */
+.event-modal{
+  position:fixed;inset:0;z-index:220;
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .28s ease,visibility 0s linear .28s;
+}
+.event-modal.open{
+  opacity:1;visibility:visible;pointer-events:auto;
+  transition:opacity .28s ease;
+}
+.event-modal-backdrop{
+  position:absolute;inset:0;
+  background:rgba(10,18,15,.66);backdrop-filter:blur(10px);
+}
+.event-modal-dialog{
+  position:relative;z-index:1;
+  width:min(920px,calc(100vw - 32px));
+  height:min(88vh,760px);max-height:min(88vh,760px);overflow:hidden;
+  display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);
+  grid-template-rows:minmax(0,1fr);
+  background:var(--card-bg);
+  border:1.5px solid var(--accent,var(--lavender));
+  border-radius:28px;
+  box-shadow:0 24px 80px rgba(0,0,0,.42);
+  transform:translateY(24px) scale(.88);
+  opacity:0;transition:transform .42s cubic-bezier(.2,.8,.2,1),opacity .28s ease;
+}
+.event-modal.open .event-modal-dialog{
+  transform:translateY(0) scale(1);opacity:1;
+}
+.event-modal-close{
+  position:absolute;top:14px;right:16px;z-index:4;
+  width:42px;height:42px;border:1px solid rgba(255,255,255,.14);
+  border-radius:50%;background:rgba(0,0,0,.28);
+  color:var(--text);font:300 1.7rem/1 Inter,system-ui,sans-serif;
+  cursor:pointer;transition:transform .2s,background .2s;
+}
+.event-modal-close:hover{transform:rotate(8deg) scale(1.05);background:rgba(0,0,0,.46)}
+.event-modal-visual{
+  min-width:0;min-height:0;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;padding:28px;
+  background:linear-gradient(145deg,rgba(255,255,255,.06),transparent 60%);
+}
+.event-modal-main{
+  position:relative;width:100%;height:min(48vh,420px);min-height:280px;
+  overflow:hidden;border-radius:20px;
+  background:var(--cream-dark);border:1px solid rgba(255,255,255,.1);
+}
+.event-modal-main img{
+  display:block;width:100%;height:100%;padding:12px;
+  object-fit:contain;object-position:center;
+}
+.event-modal-thumbs{
+  display:flex;gap:8px;overflow-x:auto;
+  padding:14px 2px 2px;scrollbar-width:thin;
+  scrollbar-color:var(--accent) transparent;
+}
+.event-modal-thumb{
+  flex:0 0 58px;width:58px;height:44px;padding:0;
+  overflow:hidden;border:1px solid rgba(255,255,255,.16);
+  border-radius:8px;background:var(--cream-dark);cursor:pointer;
+}
+.event-modal-thumb.active{
+  border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);
+}
+.event-modal-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.event-modal-info{
+  min-width:0;min-height:0;display:flex;flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  padding:48px 38px 34px 8px;
+}
+.event-modal-kicker{
+  margin-bottom:10px;color:var(--text-muted);
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;
+}
+.event-modal-year{
+  color:var(--accent,var(--lavender));
+  font-size:clamp(2.8rem,6vw,4.8rem);font-weight:800;
+  letter-spacing:-.07em;line-height:.95;margin-bottom:12px;
+}
+.event-modal-title{
+  margin:0 0 5px;font-size:clamp(1.25rem,2.2vw,1.8rem);
+  line-height:1.2;letter-spacing:-.035em;
+}
+.event-modal-scientist{
+  margin-bottom:22px;color:var(--text-muted);
+  font-size:.78rem;font-weight:600;letter-spacing:.02em;
+}
+.event-modal-desc{
+  flex:0 0 auto;min-height:0;overflow:visible;white-space:pre-line;
+  color:var(--text-light);font-size:.92rem;line-height:1.75;
+  padding-right:8px;
+}
+.event-modal-visual,
+.event-modal-info,
+.event-modal-thumbs{
+  scrollbar-width:thin;
+  scrollbar-color:color-mix(in srgb,var(--accent,var(--lavender)) 48%,transparent) transparent;
+}
+.event-modal-visual::-webkit-scrollbar,
+.event-modal-info::-webkit-scrollbar,
+.event-modal-thumbs::-webkit-scrollbar{width:6px;height:6px}
+.event-modal-visual::-webkit-scrollbar-track,
+.event-modal-info::-webkit-scrollbar-track,
+.event-modal-thumbs::-webkit-scrollbar-track{
+  background:transparent;border-radius:999px;margin:12px 1px;
+}
+.event-modal-visual::-webkit-scrollbar-thumb,
+.event-modal-info::-webkit-scrollbar-thumb,
+.event-modal-thumbs::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb,var(--accent,var(--lavender)) 48%,transparent);
+  border:1px solid transparent;background-clip:padding-box;
+  border-radius:999px;
+}
+.event-modal-visual::-webkit-scrollbar-thumb:hover,
+.event-modal-info::-webkit-scrollbar-thumb:hover,
+.event-modal-thumbs::-webkit-scrollbar-thumb:hover{
+  background:color-mix(in srgb,var(--accent,var(--lavender)) 78%,transparent);
+  background-clip:padding-box;
+}
+.event-modal-close-secondary{
+  flex:0 0 auto;align-self:flex-start;margin-top:24px;padding:11px 18px;
+  border:1px solid #006647;border-radius:999px;
+  background:#006647;color:#fff;
+  font:700 .75rem Inter,system-ui,sans-serif;cursor:pointer;
+  transition:background .2s,color .2s,transform .2s;
+}
+.event-modal-close-secondary:hover{
+  background:#004d37;color:#fff;transform:translateY(-1px);
+}
+body.high-contrast .event-modal-backdrop{background:rgba(0,61,42,.42)}
+
+/* ═══════════════════════ CANVAS ═══════════════════════ */
+#particles{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.8}
+
+/* ═══════════════════════ SCROLL CONTAINER ═══════════════════════ */
+.scroll-container{
+  position:relative;z-index:1;
+  width:100vw;height:100vh;
+  overflow:hidden;
+}
+.scroll-track{
+  display:flex;align-items:center;
+  height:100%;padding:0 50vw 0 0;
+  will-change:transform;
+}
+
+/* ═══════════════════════ HERO SECTION ═══════════════════════ */
+.hero{
+  flex:0 0 auto;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  width:100vw;min-width:500px;height:100%;text-align:center;
+  padding:0 40px;box-sizing:border-box;
+  position:relative;z-index:2;
+}
+/* ═══════════════════════ MUSEU ANIMATED 3D LOGO ═══════════════════════ */
+.hero-logo-container {
+  width:min(75vw, 240px);
+  aspect-ratio:946 / 620;
+  margin-bottom:18px;
+  position:relative;
+  filter:drop-shadow(0 16px 36px rgba(0,0,0,0.45));
+}
+.logo-stage {
+  position:relative;
+  container-type:size;
+  width:100%;
+  height:100%;
+}
+.logo-base {
+  display:block;
+  width:100%;
+  height:100%;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.orbit-anchor {
+  position:absolute;
+  z-index:2;
+  top:48.7%;
+  left:49.762%;
+  width:0;
+  height:0;
+  contain:layout style;
+  will-change:transform;
+}
+.orbit-shadow-layer{
+  position:absolute;inset:0;z-index:1;
+  pointer-events:none;
+}
+.orbit-shadow {
+  position:absolute;
+  z-index:0;
+  top:calc(48.7% + var(--shadow-y,0px) + 6.7cqw);
+  left:calc(49.762% + var(--shadow-x,0px));
+  width:12.4cqw;
+  height:3.7cqw;
+  border-radius:50%;
+  background:rgb(0 0 0 / 72%);
+  filter:blur(1.35cqw);
+  transform:translate(-50%, -50%);
+  transform-origin:center;
+  opacity:.3;
+  will-change:transform, opacity;
+}
+#yellowShadow {
+  top:calc(48.7% + var(--shadow-y,0px) + 8.9cqw);
+  width:10.4cqw;
+  height:2.7cqw;
+  background:rgb(122 83 10 / 25%);
+  filter:blur(1.35cqw);
+}
+.sphere {
+  --hx: 34%;
+  --hy: 28%;
+  --sx: 74%;
+  --sy: 76%;
+  position:absolute;
+  z-index:1;
+  top:0;
+  left:0;
+  display:block;
+  width:15.75cqw;
+  aspect-ratio:1;
+  border-radius:50%;
+  overflow:hidden;
+  transform:translate(-50%, -50%);
+  transform-origin:center;
+  backface-visibility:hidden;
+  isolation:isolate;
+  will-change:transform, filter;
+}
+.sphere::before,
+.sphere::after {
+  position:absolute;
+  inset:-1px;
+  border-radius:inherit;
+  content:"";
+  pointer-events:none;
+}
+.sphere::before {
+  z-index:2;
+  background:radial-gradient(
+    circle at var(--hx) var(--hy),
+    rgb(255 255 255 / 96%) 0%,
+    rgb(255 255 255 / 48%) 9%,
+    rgb(255 255 255 / 14%) 25%,
+    transparent 48%
+  );
+}
+.sphere::after {
+  z-index:3;
+  background:
+    radial-gradient(
+      circle at var(--sx) var(--sy),
+      rgb(0 0 0 / 25%) 0%,
+      rgb(0 0 0 / 13%) 20%,
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 50% 50%,
+      transparent 58%,
+      rgb(0 0 0 / 8%) 76%,
+      rgb(0 0 0 / 20%) 91%,
+      rgb(0 0 0 / 34%) 100%
+    );
+  mix-blend-mode:multiply;
+}
+.sphere-yellow {
+  background:radial-gradient(circle at 40% 35%, #ffe992 0%, #ffd52d 44%, #ffcc00 72%, #d99b00 100%);
+  box-shadow:
+    inset 0 0 0 .08cqw rgb(255 255 255 / 16%),
+    inset -1.1cqw -1.15cqw 2.3cqw rgb(120 63 0 / 24%),
+    0 1.1cqw 2.8cqw rgb(255 204 0 / 16%);
+}
+.sphere-green {
+  background:radial-gradient(circle at 47% 40%, #70aa97 0%, #1f7e60 43%, #006647 72%, #003d2a 100%);
+  box-shadow:
+    inset 0 0 0 .08cqw rgb(255 255 255 / 13%),
+    inset -1.1cqw -1.15cqw 2.3cqw rgb(0 26 17 / 32%),
+    0 1.2cqw 3cqw rgb(0 102 71 / 26%);
+}
+.hero h2{
+  font-size:clamp(2rem,3.8vw,3rem);font-weight:700;
+  letter-spacing:-.03em;line-height:1.2;margin-bottom:12px;
+  background:linear-gradient(135deg,var(--text) 0%,var(--text-light) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero p{
+  font-size:clamp(.9rem,1.4vw,1.05rem);color:var(--text-light);
+  font-weight:300;line-height:1.6;max-width:440px;
+}
+.scroll-hint{
+  display:flex;align-items:center;gap:8px;
+  margin-top:28px;color:var(--text-muted);
+  font-size:.75rem;font-weight:500;letter-spacing:.05em;
+  animation:drift calc(2s / var(--speed)) ease-in-out infinite;
+  transition:opacity .5s;
+}
+.scroll-hint svg{width:20px;height:20px;stroke:var(--text-muted);fill:none;stroke-width:2}
+.scroll-hint.hidden{opacity:0;pointer-events:none}
+
+/* ═══════════════════════ ERA DIVIDER ═══════════════════════ */
+.era-divider{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  width:120px;height:100%;text-align:center;
+  position:relative;z-index:2;pointer-events:none;
+}
+.era-divider span{
+  position:absolute;bottom:calc(50% + 18px);
+  white-space:nowrap;
+  font-size:.65rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.22em;color:var(--text-muted);opacity:.5;
+}
+
+/* ═══════════════════════ EVENT NODE ═══════════════════════ */
+.event-node{
+  flex:0 0 auto;position:relative;
+  width:var(--card-w);
+  margin:0 calc(var(--card-gap) / 2);
+  height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  contain:layout style;
+}
+.event-node.top .event-card{
+  bottom:calc(50% + 20px);
+}
+.event-node.bottom .event-card{
+  top:calc(50% + 20px);
+}
+
+/* ═══════════════════════ EVENT CARD ═══════════════════════ */
+.event-card{
+  position:absolute;width:100%;
+  background:var(--card-bg);backdrop-filter:blur(16px);
+  border-radius:var(--radius);
+  box-shadow:var(--card-shadow);
+  border:1.5px solid rgba(0,102,71,0.12);
+  overflow:hidden;
+  opacity:0;transform:translateY(30px);
+  transition:opacity calc(.6s / var(--speed)) ease,box-shadow .3s,border-color .3s;
+  z-index:2;
+  touch-action:none;
+  cursor:grab;
+  will-change:transform;
+  backface-visibility:hidden;
+}
+.event-card.is-dragging{
+  cursor:grabbing!important;
+  z-index:50!important;
+  transition:none!important;
+}
+.event-card.is-snapping{
+  z-index:49!important;
+  transition:none!important;
+}
+.event-node.visible .event-card{opacity:1}
+.event-node.active .event-card{
+  border-color:var(--accent,var(--lavender));
+  box-shadow:0 16px 40px rgba(0,0,0,0.35),0 0 20px rgba(180,160,255,0.25);
+}
+.event-card:active{box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.card-illustration{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;padding:16px 16px 8px;
+}
+.card-media{
+  position:relative;width:100%;height:196px;overflow:visible;
+  margin-bottom:24px;
+  border-radius:14px;background:var(--card-bg);
+  border:1px solid rgba(255,255,255,.08);
+}
+.card-image-frame{
+  position:absolute;inset:0;overflow:hidden;border-radius:14px;
+}
+.card-image{
+  display:block;width:100%;height:100%;object-fit:cover;
+  object-position:var(--image-position,center 32%);border-radius:14px;
+  transform:scale(var(--image-scale,1.08));
+  transform-origin:var(--image-position,center 32%);
+  opacity:.92;transition:transform .35s,opacity .35s;
+}
+.event-card:hover .card-image{
+  transform:scale(var(--image-hover-scale,1.12));opacity:1;
+}
+.card-year-overlay{
+  position:absolute;left:8px;bottom:-22px;z-index:3;
+  font-size:2.6rem;font-weight:800;letter-spacing:-.05em;
+  line-height:1;color:var(--accent,var(--lavender));
+  -webkit-text-stroke:.35px rgba(0,0,0,.16);
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.22),
+    0 1px 1px rgba(0,0,0,.48),
+    0 2px 2px rgba(0,0,0,.22);
+  pointer-events:none;
+}
+.card-thumbs{
+  display:flex;width:100%;gap:6px;overflow-x:auto;padding:1px 0 2px;
+  scrollbar-width:thin;scrollbar-color:var(--accent) transparent;
+}
+.card-thumb{
+  flex:0 0 42px;width:42px;height:30px;padding:0;overflow:hidden;
+  border-radius:6px;border:1px solid rgba(255,255,255,.12);
+  background:var(--cream-dark);cursor:pointer;
+}
+.card-thumb.active{
+  border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);
+}
+.card-thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.card-body{padding:0 24px 20px}
+.card-year{
+  font-size:2.2rem;font-weight:800;letter-spacing:-.04em;
+  color:var(--accent,var(--lavender));opacity:.85;line-height:1;
+  margin-bottom:4px;
+}
+.card-title{
+  font-size:.95rem;font-weight:600;letter-spacing:-.02em;
+  line-height:1.3;margin-bottom:2px;
+}
+.card-scientist{
+  font-size:.7rem;font-weight:500;color:var(--text-muted);
+  margin-bottom:10px;letter-spacing:.02em;
+}
+.card-desc{
+  font-size:.78rem;font-weight:400;color:var(--text-light);
+  line-height:1.65;max-height:0;overflow:hidden;white-space:pre-line;
+  transition:max-height calc(.5s / var(--speed)) cubic-bezier(.4,0,.2,1),opacity .3s;
+  opacity:0;
+}
+.event-card.expanded .card-desc{max-height:1600px;opacity:1}
+.card-toggle{
+  display:flex;align-items:center;gap:4px;
+  font-size:.68rem;font-weight:600;color:var(--accent,var(--lavender));
+  cursor:pointer;padding:4px 0;border:none;background:none;font-family:inherit;
+}
+.card-toggle svg{
+  width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;
+  transition:transform .3s;
+}
+.event-card.expanded .card-toggle svg{transform:rotate(180deg)}
+
+/* ═══════════════════════ TIMELINE LINE ═══════════════════════ */
+.timeline-line{ display:none; }
+
+/* ═══════════════════════ END SECTION ═══════════════════════ */
+.end-section{
+  flex:0 0 auto;position:relative;
+  width:50vw;min-width:440px;height:100%;text-align:center;
+  z-index:2;
+}
+.end-top{
+  position:absolute;left:0;right:0;
+  bottom:calc(50% + 25px);
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 30px;
+}
+.end-top h2{
+  font-size:clamp(1.8rem,3.2vw,2.6rem);font-weight:800;
+  letter-spacing:-.03em;margin:0;
+  background:linear-gradient(135deg,var(--text) 0%,var(--text-light) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  opacity:.95;
+}
+.end-bottom{
+  position:absolute;left:0;right:0;
+  top:calc(50% + 25px);
+  display:flex;flex-direction:column;align-items:center;
+  padding:0 30px;
+}
+.end-bottom p{
+  font-size:clamp(.88rem,1.3vw,1.02rem);color:var(--text-light);
+  font-weight:300;line-height:1.6;max-width:440px;
+  margin:0 0 24px 0;
+}
+.restart-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 32px;border:1.5px solid var(--cream-dark);border-radius:999px;
+  background:rgba(255,255,255,0.04);color:var(--text-light);
+  font-family:inherit;font-size:.84rem;font-weight:600;
+  cursor:pointer;transition:all .25s ease;letter-spacing:.02em;
+  backdrop-filter:blur(10px);
+}
+.restart-btn:hover{
+  background:rgba(255,255,255,0.1);border-color:var(--lavender);
+  color:#fff;transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(0,0,0,0.25);
+}
+.restart-btn:active{transform:translateY(0);background:var(--lavender);color:#fff;border-color:var(--lavender)}
+
+/* ═══════════════════════ ANIMATIONS ═══════════════════════ */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%{opacity:.3;transform:scale(1)}100%{opacity:.7;transform:scale(1.1)}}
+@keyframes drift{0%,100%{transform:translateX(0)}50%{transform:translateX(10px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════ ACCESSIBILITY ═══════════════════════ */
+button:focus-visible,input:focus-visible,.event-card:focus-visible{
+  outline:3px solid var(--lavender)!important;outline-offset:3px!important;
+}
+.card-toggle{
+  min-height:44px;min-width:44px;display:inline-flex;align-items:center;
+  gap:6px;padding:8px 12px;border-radius:var(--radius-sm);
+  background:rgba(0,0,0,0.03);transition:background .2s;
+}
+.card-toggle:active{background:rgba(0,0,0,0.07)}
+
+/* ═══════════════════════ REDUCED MOTION ═══════════════════════ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+  .event-card{will-change:auto}
+}
+
+/* ═══════════════════════ RESPONSIVE ═══════════════════════ */
+@media(max-height:760px){
+  :root{--card-w:320px;--card-gap:60px}
+  .card-media{height:148px}
+  .card-year{font-size:1.8rem}
+  .event-node.top .event-card{bottom:calc(50% + 35px)}
+  .event-node.bottom .event-card{top:calc(50% + 35px)}
+  .hero h2{font-size:1.8rem}
+  .hero-atom{width:100px;height:100px}
+}
+@media(max-width:760px){
+  .progress-era{left:16px;bottom:72px}
+  .event-modal{padding:12px}
+  .event-modal-dialog{
+    display:flex;flex-direction:column;
+    width:100%;height:calc(100vh - 24px);max-height:calc(100vh - 24px);border-radius:22px;
+  }
+  .event-modal-visual{flex:0 0 auto;padding:18px 18px 8px;overflow:hidden}
+  .event-modal-main{height:min(40vh,300px);min-height:210px}
+  .event-modal-info{flex:1 1 auto;padding:10px 22px 24px}
+  .event-modal-desc{max-height:none}
+  .event-modal-close-secondary{margin-top:18px}
+}
+@media(max-height:500px){
+  .event-node.top .event-card,.event-node.bottom .event-card{
+    top:auto;bottom:auto;position:relative;
+  }
+  .event-node .connector{display:none}
+}
+</style>
+</head>
+<body class="high-contrast">
+
+<!-- ═══════════════════════ HEADER ═══════════════════════ -->
+<header class="header">
+  <button class="settings-btn" id="settingsBtn" aria-label="Configurações">⋮</button>
+</header>
+
+<!-- ═══════════════════════ PROGRESS ═══════════════════════ -->
+<div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+<div class="progress-era" id="progressEra" aria-live="polite" role="status"></div>
+
+<!-- ═══════════════════════ SETTINGS ═══════════════════════ -->
+<div class="settings-panel" id="settingsPanel">
+  <h3>Configurações</h3>
+  <label>Velocidade das Animações
+    <input type="range" min="0.3" max="2" step="0.1" value="1" id="ctrlSpeed">
+  </label>
+  <label>Tamanho do Texto
+    <input type="range" min="13" max="22" step="1" value="16" id="ctrlFont">
+  </label>
+  <div class="toggle-row">
+    <button class="toggle active" id="ctrlContrast" aria-label="Alternar tema do museu"></button>
+    <span style="font-size:.75rem;font-weight:500;color:var(--text-light)">Tema Museu</span>
+  </div>
+  <button class="reset-btn" id="ctrlReset">↺ Reiniciar Timeline</button>
+</div>
+
+<!-- ═══════════════════════ EVENT MODAL ═══════════════════════ -->
+<div class="event-modal" id="eventModal" aria-hidden="true">
+  <div class="event-modal-backdrop" data-modal-close></div>
+  <section class="event-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="eventModalTitle">
+    <button class="event-modal-close" id="eventModalClose" type="button" aria-label="Fechar registro">×</button>
+    <div class="event-modal-visual">
+      <div class="event-modal-main">
+        <img id="eventModalImage" src="" alt="">
+      </div>
+      <div class="event-modal-thumbs" id="eventModalThumbs" aria-label="Galeria de imagens"></div>
+    </div>
+    <div class="event-modal-info">
+      <div class="event-modal-kicker">Registro histórico</div>
+      <div class="event-modal-year" id="eventModalYear"></div>
+      <h2 class="event-modal-title" id="eventModalTitle"></h2>
+      <div class="event-modal-scientist" id="eventModalScientist"></div>
+      <div class="event-modal-desc" id="eventModalDescription"></div>
+      <button class="event-modal-close-secondary" id="eventModalCloseSecondary" type="button">
+        Fechar registro
+      </button>
+    </div>
+  </section>
+</div>
+
+<!-- ═══════════════════════ PARTICLES ═══════════════════════ -->
+<canvas id="particles"></canvas>
+
+<!-- ═══════════════════════ MAIN ═══════════════════════ -->
+<div class="scroll-container" id="scrollContainer">
+  <div class="scroll-track" id="scrollTrack">
+    <!-- JS generates content here -->
+  </div>
+  <div class="timeline-line"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA: 48 eventos históricos, com imagens e relatos do Museu
+   ═══════════════════════════════════════════════════════════ */
+const EVENTS = [
+  {
+    "year": "1803",
+    "title": "Teoria Atômica",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/John Dalton.jpg",
+      "assets/ModeloDalton.jpg"
+    ],
+    "desc": "John Dalton propôs o primeiro modelo atômico com bases científicas concretas. Sua teoria revolucionária afirmava que toda a matéria é constituída de átomos, que ele descrevia como esferas maciças, indivisíveis e indestrutíveis, uma ideia que ficou popularmente conhecida como o modelo da bola de bilhar. Dalton foi crucial para a ciência ao estabelecer que átomos de um mesmo elemento são idênticos em massa e propriedades. Essa teoria não apenas explicou leis químicas fundamentais, mas também lançou as bases para todo o estudo moderno da química e da estrutura da matéria.",
+    "scientist": "John Dalton",
+    "color": "#B8A9C9"
+  },
+  {
+    "year": "1875",
+    "title": "Ampola de Crookes",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/WilliamCrookes.jpg",
+      "assets/AmpolaC.jpg"
+    ],
+    "desc": "Inventada pelo físico inglês William Crookes, a Ampola de Crookes é um tubo de vidro selado sob vácuo parcial contendo eletrodos. Quando submetida a uma alta voltagem, a ampola emitia raios invisíveis (raios catódicos) que faziam o vidro brilhar. Este dispositivo tornou-se a ferramenta mais importante da física do final do século XIX.\nFoi utilizando e modificando a Ampola de Crookes que Wilhelm Röntgen descobriu os Raios-X (1895) e J.J. Thomson descobriu o Elétron (1897). Por ser o instrumento que revelou a existência das partículas subatômicas e das radiações, a ampola é considerada o marco inicial que deu origem à física atômica e nuclear moderna.",
+    "scientist": "William Crookes",
+    "color": "#C4B5A0"
+  },
+  {
+    "year": "1895",
+    "title": "Raios-X",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Wilhelm Röntgen.jpg",
+      "assets/mãoesposa.jpg",
+      "assets/röntgeneesposa.jpg"
+    ],
+    "desc": "Durante os seus experimentos com o Tubo de Crookes, Wilhelm Röntgen cobriu o tubo com um papelão escuro/preto para ver se a luz visível ainda seria capaz de sair daquela proteção. Contudo aquela contenção blindou totalmente a luz emitida pelos raios catódicos, mas não era esta a sua maior surpresa naquele dia.\nUma placa de platinocianeto de bário próxima começou a brilhar, mesmo sem nenhuma luz interferindo naquela direção. Röntgen não sabia o que era, mas sabia que raios estavam atravessando a blindagem e acertando a placa. Como não sabia sua origem, os chamou de: Raios-X.\nApós a descoberta, ele realizou diversos testes, incluindo a famosa primeira radiografia da história: a mão esquerda de sua esposa, Anna Bertha. Ao ver a imagem revelada, exibindo seus ossos e o anel de casamento, ela exclamou que havia visto a própria morte.",
+    "scientist": "Wilhelm Röntgen",
+    "color": "#E8B4B8"
+  },
+  {
+    "year": "1896",
+    "title": "Radioatividade",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Becquerel.jpg"
+    ],
+    "desc": "Antoine Henri Becquerel descobre a radioatividade testando a descoberta de Wilhelm Röntgen. Ele tinha a teoria de que o que Röntgen havia descoberto tinha interferência da luz solar, então tentou simular o mesmo experimento.\nContudo, em Paris, no momento em que Becquerel buscava refutar a teoria de seu colega, o céu estava nublado. Conformado que seus experimentos ficariam para depois, guardou uranita com um filme por três dias.\nSua surpresa ao abrir a gaveta foi ter o filme e a chapa fotográfica completamente bombardeados e modificados pela emissão de algo que só poderiam vir da pedra de urânio. Sendo assim, os chamou de: Raios Urânicos. Mais adiante, receberam como homenagem o nome de 'Raios de Becquerel'.\nSendo nada mais, nada menos, que as nossas radiações Alfa (α), Beta (β) e Gamma (γ).",
+    "scientist": "Henri Becquerel",
+    "color": "#F5C6AA"
+  },
+  {
+    "year": "1897",
+    "title": "Elétron",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/J.J. Thomson.jpg",
+      "assets/ModeloThomson.jpg"
+    ],
+    "desc": "J.J. Thomson foi mais um grande cientista a revolucionar a física usando a Ampola de Crookes. Para realizar seus testes sem interferências, ele evacuou quase todo o ar de dentro do tubo, criando um vácuo extremamente elevado. Ao aplicar campos elétricos e magnéticos no tubo, Thomson percebeu algo impressionante: o feixe de raios catódicos era atraído pela placa elétrica positiva e repelido pela negativa. Isso provou que os raios não eram ondas, mas sim um fluxo de partículas com carga elétrica negativa.\nEssa descoberta provou que o átomo não era indivisível (derrubando o modelo de Dalton) e revelou a existência da primeira partícula subatômica: o elétron. Para explicar sua descoberta, Thomson criou um novo modelo atômico, apelidado de 'Pudim de Passas', no qual os elétrons ficavam incrustados em uma 'massa' ou esfera de carga positiva.",
+    "scientist": "J.J. Thomson",
+    "color": "#D4A0A8"
+  },
+  {
+    "year": "1898",
+    "title": "Polônio e Rádio",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Pierre e Marie.webp"
+    ],
+    "desc": "Inspirada pela recente descoberta de Becquerel sobre o urânio, Marie Curie, ao lado de seu marido, Pierre Curie, decidiu investigar se outros elementos também emitiam essa radiação misteriosa. Trabalhando em condições precárias em um galpão improvisado em Paris, o casal analisou toneladas do minério pitchblenda (pechblenda).\nEm julho de 1898, após um exaustivo trabalho de separação química, eles isolaram um novo elemento radioativo, cerca de 400 vezes mais ativo que o urânio. Em homenagem à pátria de Marie, o elemento foi batizado de Polônio.\nContudo, ao notar que os resíduos restantes continuavam extremamente radioativos, o casal continuou os experimentos. Em dezembro do mesmo ano, descobriram o Rádio, um elemento impressionantes mil vezes mais radioativo que o urânio e que brilhava no escuro.\nEssas descobertas não apenas confirmaram que a radioatividade era uma propriedade atômica do próprio elemento, mas também renderam ao casal o Prêmio Nobel de Física de 1903 e abriram as portas para a medicina nuclear e o tratamento do câncer.",
+    "scientist": "Marie & Pierre Curie",
+    "color": "#A8D8C8"
+  },
+  {
+    "year": "1899",
+    "title": "Descoberta das radiações Alfa (α) e Beta (β)",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Rutherford.jpg"
+    ],
+    "desc": "Investigando a radiação emitida pelo urânio, Ernest Rutherford descobriu que ela não era homogênea. Ao colocar finas folhas de alumínio no caminho das emissões, ele percebeu que havia dois tipos distintos de radiação.A primeira, de baixo poder de penetração e facilmente bloqueada pela folha de papel ou alumínio, ele chamou de Radiação Alfa (α). A segunda, mais penetrante e capaz de atravessar camadas mais espessas de metal, batizou de Radiação Beta (β). Essa classificação foi o primeiro passo para mapear os componentes e os perigos do comportamento radioativo.",
+    "scientist": "Ernest Rutherford",
+    "color": "#D4C5A0"
+  },
+  {
+    "year": "1900",
+    "title": "Descoberta dos Raios Gamma",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/paul.jpg"
+    ],
+    "desc": "Enquanto estudava as radiações emitidas pelos sais de rádio descobertos pelo casal Curie, o químico e físico francês Paul Villard observou um tipo de radiação surpreendentemente potente.Ao contrário das radiações alfa e beta, essa nova emissão não sofria desvio por campos magnéticos e conseguia atravessar blindagens espessas de chumbo. Mais tarde, Ernest Rutherford reconheceu a relevância dessa descoberta e a batizou de Radiação Gama (γ), identificando-a como uma onda eletromagnética de altíssima energia e alto poder de penetração.",
+    "scientist": "Paul Villard",
+    "color": "#A5C4D4"
+  },
+  {
+    "year": "1902-1903",
+    "title": "Descoberta Transmutação Natural",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/soddy.webp",
+      "assets/Rutherford.jpg"
+    ],
+    "desc": "Trabalhando juntos na Universidade McGill, Ernest Rutherford e Frederick Soddy chocaram o mundo científico ao provar que a radioatividade era acompanhada pela transformação espontânea de um elemento químico em outro.\nAo analisarem o tório, eles perceberam que o elemento emitia radiação e se 'desintegrava', transformando-se em um elemento completamente novo com propriedades químicas diferentes. Essa descoberta derrubou o dogma de séculos de que os átomos eram imutáveis e eternos, provando que a matéria estava em constante transformação no nível subatômico.",
+    "scientist": "Ernest Rutherford & Frederick Soddy",
+    "color": "#9BADB8"
+  },
+  {
+    "year": "1905",
+    "title": "Relatividade",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Einstein.jpg"
+    ],
+    "desc": "Em seu 'Ano Miraculoso' de 1905, Albert Einstein publicou a equação mais famosa da história da ciência: E = mc². Ela demonstrou que massa e energia são equivalentes e que uma quantidade minúscula de matéria pode se transformar em uma quantidade colossal de energia.\nEssa teoria resolveu o maior mistério da época: de onde vinha a energia inesgotável emitida pelos elementos radioativos descobertos pelo casal Curie. A física teórica de Einstein forneceu a base matemática necessária para entender a fissão nuclear e a liberação de energia do núcleo do átomo, alterando para sempre o rumo da humanidade.",
+    "scientist": "Albert Einstein",
+    "color": "#B5C9A8"
+  },
+  {
+    "year": "1911",
+    "title": "Núcleo Atômico",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/rutherford2.jpg",
+      "assets/ModeloRutherford.jpg"
+    ],
+    "desc": "Ao bombardear uma finíssima folha de ouro com partículas alfa, Ernest Rutherford e seus assistentes (Geiger e Marsden) observaram que a maioria das partículas atravessava a folha sem desvio, mas algumas poucas ricocheteavam em ângulos impressionantes. Rutherford comparou o fenômeno a atirar um projétil de 15 polegadas contra uma folha de papel de seda e vê-lo voltar contra você.\n\nEsse experimento revolucionário provou que o átomo é, na verdade, um grande espaço vazio com um centro extremamente denso, pequeno e de carga positiva: o Núcleo Atômico. Com essa descoberta, o modelo de 'Pudim de Passas' de Thomson foi superado, nascendo o Modelo Atômico Planetário de Rutherford.",
+    "scientist": "Ernest Rutherford, Geiger & Marsden",
+    "color": "#A8D8C8"
+  },
+  {
+    "year": "1913",
+    "title": "Modelo Atômico de Bohr",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Bohr.jpg",
+      "assets/ModeloBohr.png"
+    ],
+    "desc": "Para resolver o problema do modelo de Rutherford, onde os elétrons deveriam perder energia e colapsar no núcleo, Niels Bohr aplicou a recente Teoria Quântica ao átomo. Ele propôs que os elétrons orbitam o núcleo em camadas ou níveis de energia bem definidos, sem emitir radiação enquanto estão em sua órbita 'permitida'.\n\nAlém disso, Bohr explicou que quando um elétron salta de um nível de maior energia para um menor, ele emite energia na forma de um fóton de luz. Esse modelo não apenas salvou a estrutura do átomo, mas explicou com precisão o espectro de luz do hidrogênio, dando início à física atômica moderna.",
+    "scientist": "Niels Bohr",
+    "color": "#C4A8B0"
+  },
+  {
+    "year": "1913",
+    "title": "Descoberta dos Isótopos",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/soddy.webp"
+    ],
+    "desc": "Enquanto estudava as cadeias de desintegração radioativa, o químico inglês Frederick Soddy percebeu algo intrigante: existiam elementos com massas atômicas diferentes, mas que possuíam exatamente as mesmas propriedades químicas e ocupavam o mesmo lugar na Tabela Periódica.\n\nSoddy os batizou de 'Isótopos' (do grego 'no mesmo lugar'). Essa descoberta provou que a identidade química de um elemento não depende da sua massa total. O conceito de isótopos tornou-se a espinha dorsal de toda a tecnologia nuclear moderna, sendo fundamental para o enriquecimento de urânio e para a medicina nuclear.",
+    "scientist": "Frederick Soddy",
+    "color": "#9AAAB5"
+  },
+  {
+    "year": "1913",
+    "title": "Lei de Moseley e Número Atômico",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Moseley.jpg"
+    ],
+    "desc": "Utilizando a recente técnica de difração de Raios-X, o jovem físico Henry Moseley analisou os raios emitidos por diversos metais e descobriu uma relação matemática perfeita entre a frequência desses raios e a carga elétrica do núcleo atômico.\n\nMoseley provou que o que define as propriedades de um elemento na Tabela Periódica não é a sua massa atômica (como Dmitri Mendeleev achava), mas sim o número de prótons em seu núcleo, surgindo assim o conceito oficial de Número Atômico (Z). Essa descoberta reorganizou a Tabela Periódica de forma definitiva.",
+    "scientist": "Henry Moseley",
+    "color": "#B8C4D8"
+  },
+  {
+    "year": "1919",
+    "title": "Primeira Transmutação Artificial",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/rutherford3.jpg"
+    ],
+    "desc": "Pela primeira vez na história, o ser humano conseguiu realizar o antigo sonho dos alquimistas: transformar um elemento químico em outro. Ernest Rutherford bombardeou átomos do gás nitrogênio com partículas alfa (núcleos de hélio) e observou que a colisão transformou o nitrogênio em um isótopo de oxigênio, liberando um núcleo de hidrogênio no processo.\n\nCom esse experimento, Rutherford não apenas realizou a primeira transmutação artificial da história, mas também identificou formalmente a partícula responsável por essa carga positiva emitida: o próton. Foi o marco inicial da física nuclear de reação.",
+    "scientist": "Ernest Rutherford",
+    "color": "#B8A9C9"
+  },
+  {
+    "year": "1930",
+    "title": "Cíclotron",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Ciclotron.jpg",
+      "assets/Lawrence.jpg"
+    ],
+    "desc": "De início, Ernest Lawrence teve a ideia teórica inicial no começo de 1929, após ler um artigo do físico holandês Rolf Widerøe sobre um acelerador linear.\nE então, Lawrence e seu estudante, Niels Edlefsen, construíram o primeiríssimo modelo experimental \n(feito de vidro e latão) na Universidade da Califórnia em Berkeley, que funcionou de forma muito rudimentar no outono de 1930.",
+    "scientist": "Ernest Lawrence & Niels Edlefsen",
+    "color": "#C4B5A0"
+  },
+  {
+    "year": "1932",
+    "title": "Chadwick descobre o Nêutron",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Chadwick.jpg"
+    ],
+    "desc": "Chadwick descobre o Nêutron utilizando-se do Polônio, ótimo emissor de partículas alfa. Com isso, ele lançou essas partículas alfa na direção de uma placa de Berílio que emitia por sua vez algo tão pesado, mas sem carga, que conseguia empurrar os prótons do anteparo que era parafina.\nTambém solucionou com isso o mistério de termos um átomo de Hélio+Berílio resultado em Carbono 12 e algo faltando com massa 1 e carga 0, chamado assim de Nêutron, mais que uma partícula, uma radiação corpuscular.",
+    "scientist": "James Chadwick",
+    "color": "#E8B4B8"
+  },
+  {
+    "year": "1933",
+    "title": "Anderson descobre o Pósitron",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Anderson.jpg"
+    ],
+    "desc": "Enquanto analisava fotografias de raios cósmicos em uma câmara de nuvem imersa em um forte campo magnético, o físico americano Carl Anderson observou o rastro de uma partícula intrigante. A trajetória tinha a mesma massa de um elétron, mas curvava no sentido oposto ao campo magnético, provando que possuía carga elétrica positiva.\n\nAnderson batizou a nova partícula de 'Pósitron' (o anti-elétron). Essa foi a primeira confirmação experimental da existência da antimatéria, que havia sido prevista teoricamente por Paul Dirac em 1928, abrindo um campo completamente novo na física de partículas e na medicina diagnóstica (como no moderno exame PET-Scan).",
+    "scientist": "Carl Anderson",
+    "color": "#F5C6AA"
+  },
+  {
+    "year": "1935",
+    "title": "Yukawa prediz a existência do Méson",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Yukawa.jpg"
+    ],
+    "desc": "Para resolver um dos maiores enigmas da física, como os prótons (que têm cargas positivas e se repelem fortemente) conseguem permanecer juntos e estáveis dentro do núcleo atômico, o físico teórico japonês Hideki Yukawa propôs a existência de uma nova força: a Força Nuclear Forte.\n\nYukawa teorizou matematicamente que essa força era mediada pelo 'intercâmbio' de uma partícula ainda desconhecida, cuja massa seria intermediária entre a do elétron e a do próton. Ele a chamou de 'Méson' (do grego *mesos*, que significa 'meio'). Anos mais tarde, os mésons foram detectados experimentalmente (inclusive com a famosa participação do brasileiro César Lattes em 1947), e Yukawa tornou-se o primeiro japonês a receber o Prêmio Nobel de Física em 1949, por sua previsão.",
+    "scientist": "Hideki Yukawa",
+    "color": "#D4A0A8"
+  },
+  {
+    "year": "1938",
+    "title": "Hahn e Strassman/Meitner Frisch descobrem a Fissão Nuclear",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/LiseMeitner_OttoHahn.jpg",
+      "assets/Hahn-Strassman.jpg",
+      "assets/LiseFrischSeaborg.jpg"
+    ],
+    "desc": "Em Berlim, Otto Hahn e Fritz Strassmann bombardearam átomos de Urânio com nêutrons e, para surpresa de todos, encontraram o elemento Bário entre os produtos da reação, um elemento com quase metade da massa do urânio. Sem saber como explicar o resultado, Hahn escreveu para sua colega de longa data, a física Lise Meitner, que havia fugido da Alemanha nazista para a Suécia meses antes devido à sua origem judaica.\n\nAo lado do seu sobrinho, o físico Otto Frisch, Meitner decifrou o enigma durante uma caminhada na neve: o núcleo de urânio não havia apenas emitido partículas, ele havia se partido ao meio! Eles batizaram o processo de 'Fissão Nuclear' e usaram a equação de Einstein E=mc² para provar que a fissão libertava uma quantidade colossal de energia, abrindo as portas para a era da energia e das armas nucleares.",
+    "scientist": "Otto Hahn, Fritz Strassmann, Lise Meitner & Otto Frisch",
+    "color": "#A8D8C8"
+  },
+  {
+    "year": "1942",
+    "title": "Primeira Reação Nuclear controlada",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Fermi.jpg"
+    ],
+    "desc": "Sob as arquibancadas do estádio Stagg Field, na Universidade de Chicago, uma equipe liderada pelo físico italiano Enrico Fermi construiu a Chicago Pile-1 (CP-1), o primeiro reator nuclear artificial do mundo. O reator era uma estrutura monumental feita de blocos de grafite (usado como moderador) e urânio.\n\nEm 2 de dezembro de 1942, ao retirar cuidadosamente as barras de controle de cádmio, Fermi e sua equipe alcançaram a primeira reação em cadeia autossustentada e controlada da história. Esse experimento provou na prática que a energia nuclear poderia ser dominada e liberada de forma contínua, abrindo caminho para a criação dos reatores nucleares e marcando o início prático do Projeto Manhattan.",
+    "scientist": "Enrico Fermi",
+    "color": "#D4C5A0"
+  },
+  {
+    "year": "1943",
+    "title": "Seaborg descobre o Plutônio",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Seaborg.jpg"
+    ],
+    "desc": "Em meio à Segunda Guerra Mundial, Glenn Seaborg e a sua equipa na Universidade da Califórnia, Berkeley, isolaram e caracterizaram o elemento transurânico Plutónio (especificamente o isótopo Plutônio-239). O plutónio foi sintetizado ao bombardear o Urânio-238 com deutérios no Cíclotron.\n\nSeaborg demonstrou que o Plutônio-239 era altamente fissionável por nêutrons lentos, assim como o Urânio-235, mas com uma vantagem crucial: por ser um elemento químico diferente, podia ser separado do urânio por processos químicos industriais em vez do complexo enriquecimento isotópico. Essa descoberta levou à criação do Reator de BNL/Hanford e forneceu o combustível para o primeiro teste nuclear da história (Trinity) e para a bomba Fat Man.",
+    "scientist": "Glenn Seaborg",
+    "color": "#A5C4D4"
+  },
+  {
+    "year": "1945",
+    "title": "Primeira Bomba Atômica",
+    "era": "As Descobertas Iniciais",
+    "images": [
+      "assets/Oppenheimer.webp",
+      "assets/BombaAtômica.jpg"
+    ],
+    "desc": "Sob a direção científica de J. Robert Oppenheimer e liderança militar do General Leslie Groves, o Projeto Manhattan culminou no Teste Trinity em 16 de julho de 1945, no deserto do Novo México, a primeira explosão nuclear da história humana, utilizando uma bomba de plutônio.\n\nPoucos semanas depois, em agosto de 1945, os Estados Unidos lançaram as bombas 'Little Boy' (de Urânio-235) sobre Hiroshima e 'Fat Man' (de Plutônio-239) sobre Nagasaki. Os ataques causaram uma destruição sem precedentes e forçaram o fim da Segunda Guerra Mundial, revelando ao mundo o poder aterrorizante do núcleo atômico e dando início à Guerra Fria e à era do desarmamento nuclear.",
+    "scientist": "J. Robert Oppenheimer & Leslie Groves",
+    "color": "#9BADB8"
+  },
+  {
+    "year": "1947",
+    "title": "Detecção dos Mésons",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/LattesOcchialiniPowell.jpg",
+      "assets/CLattes.jpg",
+      "assets/LatOccPow.jpg"
+    ],
+    "desc": "O físico brasileiro César Lattes revolucionou a ciência mundial ao lado de Cecil Powell e Giuseppe Occhialini ao detectar o méson pi, a partícula que funciona como a 'cola' do núcleo atômico. Usando placas fotográficas especiais no topo do Monte Chacaltaya, na Bolívia, a equipe liderada por Powell, Lattes e Occhialini registrou os rastros dos raios cósmicos e colocou o Brasil na elite da física de partículas.",
+    "scientist": "César Lattes, Cecil Powell & Giuseppe Occhialini",
+    "color": "#B5C9A8"
+  },
+  {
+    "year": "1948",
+    "title": "Méson Artificial",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Lattes-Gardner.jpg",
+      "assets/LatYuk.jpg"
+    ],
+    "desc": "Após detectar o méson pi na natureza, César Lattes e o físico norte-americano Eugene Gardner fizeram história novamente ao produzir os primeiros mésons de forma artificial. Utilizando o poderoso sincrociclótron da Universidade de Califórnia em Berkeley, a dupla provou que a humanidade era capaz de criar e controlar partículas subatômicas em laboratório, abrindo as portas para a física moderna de aceleradores.",
+    "scientist": "César Lattes & Eugene Gardner",
+    "color": "#A8D8C8"
+  },
+  {
+    "year": "1951",
+    "title": "Reator Rápido",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/EBR-1.jpg",
+      "assets/EBR-I.jpg",
+      "assets/EBR-I(2).jpg"
+    ],
+    "desc": "Em 20 de dezembro de 1951, o Reator Regenerador Rápido I (EBR-I), projetado pelo físico Walter Zinn nos EUA, fez história ao acender quatro lâmpadas com eletricidade gerada por reação nuclear. Pela primeira vez no planeta, provou-se que a energia do núcleo atômico podia ser convertida em energia elétrica útil para a humanidade, inaugurando a era da energia nuclear.",
+    "scientist": "Walter Zinn",
+    "color": "#C4A8B0"
+  },
+  {
+    "year": "1954",
+    "title": "Castle Bravo e a Era das Armas Termonucleares",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/BombaH.jpg",
+      "assets/BombH.jpg",
+      "assets/CastleBravo.jpg"
+    ],
+    "desc": "Em 1º de março de 1954, os Estados Unidos realizaram no Atol de Bikini o teste Castle Bravo, a maior e mais destrutiva explosão termonuclear da história norte-americana (15 megatons). Ao contrário das bombas anteriores, essa utilizou combustível sólido (fusão de hidrogênio), provando a viabilidade de armas termonucleares operacionais e inaugurando a fase mais perigosa e assustadora da Guerra Fria.",
+    "scientist": "Programa termonuclear dos EUA",
+    "color": "#9AAAB5"
+  },
+  {
+    "year": "1954",
+    "title": "Submarino Nuclear - Nautilus",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/USS-Nautilus.jpg",
+      "assets/Naut.jpg",
+      "assets/Nau.jpg"
+    ],
+    "desc": "Em 1954, os Estados Unidos lançaram ao mar o USS Nautilus, o primeiro submarino movido a energia nuclear do planeta. Criado sob a liderança do almirante Hyman Rickover, o Nautilus revolucionou a engenharia naval e a estratégia militar ao conseguir navegar por semanas totalmente submerso e sem precisar de reabastecimento, feito comprovado ao realizar a histórica travessia sob o gelo do Polo Norte.",
+    "scientist": "Hyman Rickover",
+    "color": "#B8C4D8"
+  },
+  {
+    "year": "1954",
+    "title": "Primeira Central Nuclelétrica Russa",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Obninsk.jpg",
+      "assets/Obs.jpg",
+      "assets/Obsi.jpg"
+    ],
+    "desc": "Em 27 de junho de 1954, a União Soviética inaugurou a Usina Nuclear de Obninsk (APS-1), liderada pelo físico Igor Kurchatov. Conectada diretamente à rede elétrica pública, ela tornou-se a primeira central nucleoeletrica a fornecer energia para residências e indústrias na história, marcando o início do uso civil e comercial da tecnologia nuclear.",
+    "scientist": "Igor Kurchatov",
+    "color": "#B8A9C9"
+  },
+  {
+    "year": "1956",
+    "title": "Calder Hall",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Calder Hall.jpg",
+      "assets/Chsll.jpg",
+      "assets/CalHall.jpg"
+    ],
+    "desc": "Em 17 de outubro de 1956, o Reino Unido inaugurou Calder Hall, a primeira usina nuclear do mundo a gerar eletricidade em escala industrial e comercial contínua. Operando com reatores do tipo Magnox, a central forneceu energia para a rede elétrica britânica por quase 50 anos, tornando-se o grande marco da transição da energia nuclear para o consumo de massa.",
+    "scientist": "UK Atomic Energy Authority",
+    "color": "#C4B5A0"
+  },
+  {
+    "year": "1957",
+    "title": "Primeira Usina Americana Shippingport",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Shippingport.jpg",
+      "assets/ship.jpg",
+      "assets/shipp.jpg"
+    ],
+    "desc": "Em 18 de dezembro de 1957, entrava em operação a Shippingport Atomic Power Station, na Pensilvânia, a primeira usina nuclear de grande porte construída nos EUA exclusivamente para fins civis. Projetada sob a liderança do almirante Hyman Rickover usando um Reator de Água Pressurizada (PWR), a usina tornou-se o modelo padrão para a maioria dos reatores comerciais em operação no mundo até hoje.",
+    "scientist": "Hyman Rickover",
+    "color": "#E8B4B8"
+  },
+  {
+    "year": "1957",
+    "title": "Desastre de Kyshtym",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Kyshtym.jpg",
+      "assets/ky.jpg"
+    ],
+    "desc": "Em 29 de setembro de 1957, uma falha no sistema de refrigeração de um tanque de resíduos radioativos causou uma explosão química devastadora na usina nuclear de Mayak, perto de Kyshtym, na União Soviética. A explosão lançou uma nuvem tóxica sobre uma área de centenas de quilômetros quadrados (a chamada Pegada Radioativa do Ural Leste), contaminando mais de 270.000 pessoas. O desastre foi mantido em segredo absoluto pelo governo soviético por mais de três décadas, sendo hoje classificado como o terceiro pior acidente nuclear da história, atrás apenas de Chernobyl e Fukushima.",
+    "scientist": "Mayak, URSS",
+    "color": "#F5C6AA"
+  },
+  {
+    "year": "1957",
+    "title": "Acidente em Windscale",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Windscale.jpg",
+      "assets/Windscale_Bombeiros.jpg",
+      "assets/ws.jpg",
+      "assets/wis.jpg"
+    ],
+    "desc": "Em 10 de outubro de 1957, o Reino Unido enfrentou o pior acidente nuclear de sua história quando um incêndio atingiu o reator de Windscale (hoje Sellafield). O fogo queimou durante dias e liberou uma nuvem radioativa que se espalhou pelo Reino Unido e Europa, levando ao descarte de milhões de litros de leite contaminado e revelando ao mundo os riscos da energia atômica sem protocolos de segurança adequados.\nA usina foi renomeada para Sellafields após o acidente",
+    "scientist": "Windscale, Reino Unido",
+    "color": "#D4A0A8"
+  },
+  {
+    "year": "1958",
+    "title": "Navio Savannah",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/NS Savannah.jpg",
+      "assets/sav.jpg",
+      "assets/sava.jpg"
+    ],
+    "desc": "Lançado pelos Estados Unidos sob o programa Atoms for Peace do presidente Eisenhower, o NS Savannah fez história como o primeiro navio cargueiro e de passageiros movido a energia nuclear. Com seu design futurista e reator PWR, o navio viajou pelos oceanos provando que a energia atômica podia ser usada com segurança para o comércio e o transporte marítimo global de paz.",
+    "scientist": "Dwight D. Eisenhower",
+    "color": "#A8D8C8"
+  },
+  {
+    "year": "1959",
+    "title": "Quebra-Gelos - Lênin",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Lênin.jpg",
+      "assets/NSLe.jpg"
+    ],
+    "desc": "Em 1959, a União Soviética colocou em operação o NS Lenin, o primeiro navio de superfície movido a energia nuclear da história. Projetado para abrir caminho nas espessas camadas de gelo do Oceano Ártico, o navio provou a superioridade da propulsão nuclear em ambientes extremos, conseguindo navegar por anos na Rota do Mar do Norte sem precisar parar para reabastecer.",
+    "scientist": "URSS",
+    "color": "#D4C5A0"
+  },
+  {
+    "year": "1965",
+    "title": "SNAP-10A",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/SNAP-10A.jpg",
+      "assets/snap.jpg"
+    ],
+    "desc": "Em 3 de abril de 1965, os Estados Unidos lançaram o SNAP-10A, tornando-se o primeiro (e único) reator nuclear posto em órbita pelos EUA. Utilizando um sistema de conversão termoelétrica para gerar eletricidade a partir da fissão do urânio, o reator operou com sucesso por 43 dias no espaço, provando a viabilidade de fontes de energia atômica de longa duração para satélites e missões espaciais.",
+    "scientist": "NASA",
+    "color": "#A5C4D4"
+  },
+  {
+    "year": "1979",
+    "title": "Incidente de Three Mile Island",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/tmi.jpg",
+      "assets/tm.jpg"
+    ],
+    "desc": "Em 28 de março de 1979, o Reator 2 da usina de Three Mile Island, na Pensilvânia, sofreu um derretimento parcial do seu núcleo, o pior acidente na história da energia nuclear comercial dos Estados Unidos. Provocado por uma combinação de falhas mecânicas, erros humanos e sensores confusos, o evento não deixou mortos diretos, mas paralisou a expansão da indústria nuclear americana por décadas e levou a uma reestruturação radical nas normas de segurança do setor.",
+    "scientist": "NRC, EUA",
+    "color": "#9BADB8"
+  },
+  {
+    "year": "1982",
+    "title": "Operação de Angra 1",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Angra1.jpg",
+      "assets/Angra11.jpg",
+      "assets/rAngra.jpg"
+    ],
+    "desc": "Em 13 de março de 1982, o Brasil deu um salto histórico ao conectar a Usina Nuclear Angra 1 à rede elétrica nacional pela primeira vez. Localizada em Angra dos Reis (RJ) e equipada com um reator de água pressurizada (PWR), a usina deu início à operação comercial da tecnologia nuclear no país, inserindo o Brasil no seleto grupo de nações produtoras de energia atômica.",
+    "scientist": "Eletronuclear, Brasil",
+    "color": "#B5C9A8"
+  },
+  {
+    "year": "1986",
+    "title": "Acidente em Chernobyl",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Chernobyl.jpg",
+      "assets/Chernobyl2.jpg",
+      "assets/pédeelefante.jpg",
+      "assets/che.jpg",
+      "assets/cher.jpg"
+    ],
+    "desc": "Em 26 de abril de 1986, uma falha crítica durante um teste de segurança causou a explosão do Reator 4 da Usina Nuclear de Chernobyl, na Ucrânia (então União Soviética). A explosão e o incêndio resultante lançaram uma imensa nuvem radioativa sobre a Europa, forçando a evacuação da cidade de Pripyat, mudando para sempre as leis mundiais de segurança nuclear e acelerando o colapso da própria União Soviética.",
+    "scientist": "URSS",
+    "color": "#A8D8C8"
+  },
+  {
+    "year": "1987",
+    "title": "Acidente Nuclear em Goiânia, Brasil",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/goiânia.jpg",
+      "assets/goiania.jpg"
+    ],
+    "desc": "Em setembro de 1987, Goiânia (Goiás) foi palco do maior acidente radioativo em área urbana do mundo e o pior da história do Brasil. Tudo começou quando dois catadores de sucata encontraram e abriram um aparelho de radioterapia abandonado num antigo hospital, expondo uma cápsula de Césio-137. O pó brilhante de cor azul fascina a população local, levando à contaminação direta de centenas de pessoas, à morte de quatro vítimas fatais nas primeiras semanas e ao isolamento de toneladas de lixo radioativo.",
+    "scientist": "CNEN, Brasil",
+    "color": "#C4A8B0"
+  },
+  {
+    "year": "1989",
+    "title": "Criação de WANO",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/WANO.jpg"
+    ],
+    "desc": "Em 15 de maio de 1989, operadores de usinas nucleares de todo o mundo fundaram a WANO (World Association of Nuclear Operators) para garantir que um desastre como Chernobyl nunca mais se repetisse. Unindo nações dos dois lados da Guerra Fria, a organização estabeleceu um sistema global de inspeção, troca de dados e apoio mútuo, transformando a segurança nuclear em uma responsabilidade compartilhada por todos os países.",
+    "scientist": "WANO",
+    "color": "#9AAAB5"
+  },
+  {
+    "year": "1989",
+    "title": "Incêndio de Vandellòs I",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/vand.jpg"
+    ],
+    "desc": "Em 19 de outubro de 1989, um incêndio na sala de turbinas da Usina Nuclear Vandellòs I destruiu sistemas elétricos e alagou os pavimentos inferiores, ameaçando o resfriamento do reator. Apesar de não ter havido vazamento radioativo nem mortes, o evento foi classificado no Nível 3 da escala INES (o mais grave da história da Espanha) e levou ao fechamento definitivo da usina.",
+    "scientist": "Espanha",
+    "color": "#B8C4D8"
+  },
+  {
+    "year": "1999",
+    "title": "Acidente Radiológico de Yanango ",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/yanango.jpg"
+    ],
+    "desc": "Em 20 de fevereiro de 1999, um dos piores acidentes radiológicos industriais da América Latina ocorreu na usina hidrelétrica de Yanango, no Peru. Um soldador encontrou uma fonte radioativa selada de Irídio-192 usada em radiografia industrial e, sem saber do perigo, colocou a cápsula no bolso da calça por horas. A exposição extrema resultou em amputação, queimaduras severas por radiação e graves lesões permanentes no trabalhador e em sua família.",
+    "scientist": "Peru",
+    "color": "#B8A9C9"
+  },
+  {
+    "year": "1999",
+    "title": "Acidente Radiológico de Tokaimura",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/tok.jpg",
+      "assets/tokai.jpg"
+    ],
+    "desc": "Em 30 de setembro de 1999, um grave acidente de criticidade ocorreu na usina de processamento de combustível nuclear da JCO em Tokaimura, no Japão. Causado por procedimentos ilegais, desrespeito a limites de massa e falta de treinamento adequado, o evento gerou uma reação em cadeia involuntária que expôs três trabalhadores a doses letais de radiação e tornou-se o pior acidente nuclear da história do Japão até o desastre de Fukushima em 2011.",
+    "scientist": "JCO, Japão",
+    "color": "#C4B5A0"
+  },
+  {
+    "year": "2000",
+    "title": "Operação Angra 2",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/Angra2.webp"
+    ],
+    "desc": "Em 21 de julho de 2000, a Usina Nuclear Angra 2 foi sincronizada pela primeira vez à rede elétrica nacional, entrando em operação comercial no mesmo ano. Fruto do Acordo Nuclear Brasil-Alemanha, Angra 2, com capacidade de cerca de 1.350 MW (mais de quatro vezes a potência de Angra 1), tornou-se fundamental para a segurança energética do país e consolidou a engenharia nuclear de grande porte no Brasil.",
+    "scientist": "Eletronuclear, Brasil",
+    "color": "#E8B4B8"
+  },
+  {
+    "year": "2006",
+    "title": "Incidente de Forsmark",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/forsmark.jpg",
+      "assets/Fosmark1.jpg"
+    ],
+    "desc": "Em 25 de julho de 2006, um curto-circuito na usina nuclear de Forsmark provocou a perda de energia externa e a falha simultânea de dois dos quatro geradores a diesel de emergência. O reator ficou a apenas 20 minutos de um derretimento parcial do núcleo devido ao apagão nos sistemas de segurança. O evento, classificado como Nível 2 na escala INES, revelou falhas graves de redundância e levou ao desligamento preventivo de dezenas de reatores ao redor do mundo para auditorias urgentes.",
+    "scientist": "Suécia",
+    "color": "#F5C6AA"
+  },
+  {
+    "year": "2011",
+    "title": "Desastre Nuclear de Fukushima",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/fuku.jpg",
+      "assets/fukushima.jpg",
+      "assets/fukus.jpg"
+    ],
+    "desc": "Em 11 de março de 2011, um terremoto de magnitude 9,0 seguido por um tsunami devastador atingiu a Usina Nuclear de Fukushima Daiichi. As ondas inundaram os geradores de emergência, interrompendo o resfriamento dos reatores e provocando o derretimento do núcleo de três unidades e explosões de hidrogênio. Classificado como Nível 7 na escala INES, o acidente forçou a evacuação de mais de 150 mil pessoas e levou o mundo a reavaliar a segurança nuclear frente a desastres naturais.",
+    "scientist": "Japão",
+    "color": "#D4A0A8"
+  },
+  {
+    "year": "2026",
+    "title": "Futuro do Átomo no Brasil",
+    "era": "A Era Nuclear Moderna",
+    "images": [
+      "assets/2026.jpg"
+    ],
+    "desc": "Em debate na Câmara dos Deputados, o país avança para criar o marco legal dos Pequenos Reatores Modulares (SMRs). Uma revolução com tecnologia 100% brasileira para levar energia limpa e contínua à Amazônia e garantir a soberania energética do país. (Fonte: Agência Câmara de Notícias)",
+    "scientist": "Brasil",
+    "color": "#A8D8C8"
+  }
+];
+
+/* Cores do segundo tema, retiradas dos gradientes e traços do SVG da marca. */
+const MUSEUM_EVENT_COLORS = [
+  '#006647','#FFCC00','#257C62','#FFD326','#4C937D','#FFDA47','#006647',
+  '#FFE067','#257C62','#FFCC00','#4C937D','#FFD326','#006647','#FFDA47'
+];
+
+const currentEventColor = index => document.body.classList.contains('high-contrast')
+  ? MUSEUM_EVENT_COLORS[index % MUSEUM_EVENT_COLORS.length]
+  : (EVENTS[index]?.color || '#C4B5D8');
+
+const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[char]));
+const assetUrl = value => String(value).split('/').map(encodeURIComponent).join('/');
+const IMAGE_FRAMING = {
+  'assets/rutherford3.jpg': { position:'center 52%', scale:'1.02', hoverScale:'1.05' },
+  'assets/Lawrence.jpg': { position:'center 20%', scale:'1.02', hoverScale:'1.05' },
+  'assets/Chadwick.jpg': { position:'center 17%', scale:'1.02', hoverScale:'1.05' },
+  'assets/Oppenheimer.webp': { position:'center 4%', scale:'1.02', hoverScale:'1.05' },
+  'assets/Fermi.jpg': { position:'center 6%', scale:'1.02', hoverScale:'1.05' }
+};
+const renderCardIllustration = ev => {
+  const images = Array.isArray(ev.images) ? ev.images : [];
+  if (!images.length) return '';
+  const label = escapeHTML(`${ev.title} ${ev.year}`);
+  const mainImage = assetUrl(images[0]);
+  const framing = IMAGE_FRAMING[images[0]] || { position:'center 32%', scale:'1.08', hoverScale:'1.12' };
+  const thumbs = images.length > 1 ? `
+    <div class="card-thumbs" role="list" aria-label="Galeria de ${label}">
+      ${images.map((image, imageIndex) => `
+        <button type="button" class="card-thumb${imageIndex === 0 ? ' active' : ''}"
+          data-image="${assetUrl(image)}"
+          aria-label="Ver imagem ${imageIndex + 1}">
+          <img src="${assetUrl(image)}" alt="" loading="lazy">
+        </button>`).join('')}
+    </div>` : '';
+  return `
+    <div class="card-media" style="--image-position:${framing.position};--image-scale:${framing.scale};--image-hover-scale:${framing.hoverScale}">
+      <div class="card-image-frame">
+        <img class="card-image" data-gallery-main src="${mainImage}" alt="${label}" loading="lazy">
+      </div>
+      <span class="card-year-overlay">${escapeHTML(ev.year)}</span>
+    </div>${thumbs}`;
+};
+const bindGallery = card => {
+  const main = card.querySelector('[data-gallery-main]');
+  if (!main) return;
+  card.querySelectorAll('.card-thumb').forEach(thumb => {
+    thumb.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      main.src = thumb.dataset.image;
+      card.querySelectorAll('.card-thumb').forEach(item => item.classList.remove('active'));
+      thumb.classList.add('active');
+    });
+  });
+};
+
+const eventModal = document.getElementById('eventModal');
+const eventModalDialog = eventModal?.querySelector('.event-modal-dialog');
+const eventModalVisual = eventModal?.querySelector('.event-modal-visual');
+const eventModalInfo = eventModal?.querySelector('.event-modal-info');
+const eventModalImage = document.getElementById('eventModalImage');
+const eventModalThumbs = document.getElementById('eventModalThumbs');
+const eventModalYear = document.getElementById('eventModalYear');
+const eventModalTitle = document.getElementById('eventModalTitle');
+const eventModalScientist = document.getElementById('eventModalScientist');
+const eventModalDescription = document.getElementById('eventModalDescription');
+const eventModalClose = document.getElementById('eventModalClose');
+const eventModalCloseSecondary = document.getElementById('eventModalCloseSecondary');
+let eventModalLastFocus = null;
+
+const closeEventModal = () => {
+  if (!eventModal?.classList.contains('open')) return;
+  eventModal.classList.remove('open');
+  eventModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('modal-open');
+  if (eventModalLastFocus && typeof eventModalLastFocus.focus === 'function') {
+    eventModalLastFocus.focus({ preventScroll:true });
+  }
+  eventModalLastFocus = null;
+};
+
+const openEventModal = (ev, index, source) => {
+  if (!eventModal) return;
+  eventModalLastFocus = source || document.activeElement;
+  eventModal.dataset.eventIndex = String(index);
+  eventModal.style.setProperty('--accent', currentEventColor(index));
+  if (eventModalVisual) eventModalVisual.scrollTop = 0;
+  if (eventModalInfo) eventModalInfo.scrollTop = 0;
+  eventModalYear.textContent = ev.year;
+  eventModalTitle.textContent = ev.title;
+  eventModalScientist.textContent = ev.scientist || 'Registro histórico';
+  eventModalDescription.textContent = ev.desc;
+
+  const images = Array.isArray(ev.images) ? ev.images : [];
+  eventModalThumbs.innerHTML = images.map((image, imageIndex) => `
+    <button type="button" class="event-modal-thumb${imageIndex === 0 ? ' active' : ''}"
+      data-image="${assetUrl(image)}"
+      aria-label="Ver imagem ${imageIndex + 1}">
+      <img src="${assetUrl(image)}" alt="" loading="lazy">
+    </button>`).join('');
+
+  const setModalImage = (image, imageIndex) => {
+    eventModalImage.src = assetUrl(image);
+    eventModalImage.alt = `${ev.title} ${ev.year}`;
+    eventModalThumbs.querySelectorAll('.event-modal-thumb').forEach((thumb, thumbIndex) => {
+      thumb.classList.toggle('active', thumbIndex === imageIndex);
+    });
+  };
+  eventModalThumbs.querySelectorAll('.event-modal-thumb').forEach((thumb, imageIndex) => {
+    thumb.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      setModalImage(images[imageIndex], imageIndex);
+    });
+  });
+  if (images.length) setModalImage(images[0], 0);
+
+  eventModal.classList.add('open');
+  eventModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('modal-open');
+  requestAnimationFrame(() => eventModalClose?.focus());
+};
+
+eventModalClose?.addEventListener('click', closeEventModal);
+eventModalCloseSecondary?.addEventListener('click', closeEventModal);
+eventModal?.querySelector('[data-modal-close]')?.addEventListener('click', closeEventModal);
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && eventModal?.classList.contains('open')) closeEventModal();
+});
+
+/* ═══════════════════════════════════════════════════════════
+   PARTICLE SYSTEM: subtle floating pastel dots
+   ═══════════════════════════════════════════════════════════ */
+class Particles {
+  constructor(canvas) {
+    this.c = canvas; this.ctx = canvas.getContext('2d');
+    this.particles = []; this.time = 0; this.lastFrameTime = performance.now();
+    this.timeline = null; this.scroller = null;
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    const colors = ['#C4B5D8','#E8B4B8','#7ECDB5','#F0C8A0','#8EC0D8','#A8CC98'];
+    /* No fundo claro, só os verdes suaves evitam o aspecto de manchas. */
+    this.museumColors = ['#71AA99','#9FC5BA','#D0E2DC'];
+    const ambientParticleCount = 72;
+    // Ambient particles
+    for (let i = 0; i < ambientParticleCount; i++) {
+      this.particles.push({
+        x: Math.random() * this.c.width,
+        y: Math.random() * this.c.height,
+        r: 0.8 + Math.random() * 1.4,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.15,
+        color: colors[i % colors.length],
+        alpha: 0.09 + Math.random() * 0.12,
+        phase: Math.random() * Math.PI * 2,
+        twinkle: 0.45 + Math.random() * 0.55
+      });
+    }
+    // Energy line particles (flowing along the timeline)
+    this.energyP = [];
+    for (let i = 0; i < 35; i++) {
+      this.energyP.push({
+        x: Math.random() * this.c.width,
+        speed: 0.8 + Math.random() * 2.2,
+        size: 1 + Math.random() * 2,
+        brightness: 0.4 + Math.random() * 0.6,
+        offset: (Math.random() - 0.5) * 6
+      });
+    }
+    this.animate();
+  }
+  setRefs(timeline, scroller) {
+    this.timeline = timeline;
+    this.scroller = scroller;
+  }
+  resize() { this.c.width = innerWidth; this.c.height = innerHeight; }
+  wave(x, t) {
+    return Math.sin(x * 0.0035 + t * 1.2) * 5 +
+           Math.sin(x * 0.008 + t * 1.8) * 2.5 +
+           Math.sin(x * 0.0015 + t * 0.6) * 6;
+  }
+  getTimelineY(x, t, cy, activeDeformers) {
+    let y = cy + this.wave(x, t);
+    if (!activeDeformers || activeDeformers.length === 0) return y;
+
+    for (let i = 0; i < activeDeformers.length; i++) {
+      const d = activeDeformers[i];
+      const distX = x - d.x;
+      if (Math.abs(distX) > 300) continue;
+
+      if (d.tension > 0.01) {
+        const gaussian = Math.exp(-(distX * distX) / 24200); // 2 * 110^2
+        y += d.pullAmp * gaussian;
+
+        const ripple = Math.sin(Math.abs(distX) * 0.05 - t * 15) * d.rippleAmp * Math.exp(-Math.abs(distX) / 200);
+        y += ripple;
+      }
+
+      if (d.shockAlpha > 0.02) {
+        const shockDist = Math.abs(Math.abs(distX) - d.shockRadius * 2.5);
+        if (shockDist < 60) {
+          y += Math.sin(shockDist * 0.12) * d.shockAlpha * 12;
+        }
+      }
+    }
+    return y;
+  }
+  animate(now = performance.now()) {
+    const ctx = this.ctx, w = this.c.width, h = this.c.height, cy = h / 2;
+    const museumTheme = document.body.classList.contains('high-contrast');
+    const frameScale = Math.min(2, Math.max(0.5, (now - this.lastFrameTime) / 16.667));
+    this.lastFrameTime = now;
+    ctx.clearRect(0, 0, w, h);
+    this.time += 0.012 * frameScale;
+    const t = this.time;
+
+    // Update spring physics on each frame
+    if (this.timeline && this.timeline.updatePhysics) {
+      this.timeline.updatePhysics(now);
+    }
+
+    // === 1. AMBIENT DUST PARTICLES ===
+    for (let i = 0; i < this.particles.length; i++) {
+      const p = this.particles[i];
+      p.x += p.vx * frameScale; p.y += p.vy * frameScale;
+      if (p.x < -10) p.x = w + 10; if (p.x > w + 10) p.x = -10;
+      if (p.y < -10) p.y = h + 10; if (p.y > h + 10) p.y = -10;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = museumTheme ? this.museumColors[i % this.museumColors.length] : p.color;
+      ctx.globalAlpha = museumTheme
+        ? p.alpha * (0.72 + Math.sin(t * p.twinkle + p.phase) * 0.18)
+        : p.alpha;
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // Precompute active deformers to avoid any overhead during line rendering
+    const activeDeformers = [];
+    const scrollPos = this.scroller ? this.scroller.pos : 0;
+
+    if (this.timeline && this.timeline.nodes) {
+      for (let i = 0; i < this.timeline.nodes.length; i++) {
+        const node = this.timeline.nodes[i];
+        const phys = node.physics;
+        if (!phys) continue;
+
+        if (phys.tension > 0.01 || phys.shockwaveAlpha > 0.02) {
+          const cardX = node.baseX - scrollPos;
+          activeDeformers.push({
+            x: cardX,
+            tension: phys.tension,
+            pullAmp: phys.offsetY * 0.42,
+            rippleAmp: phys.tension * 8,
+            shockAlpha: phys.shockwaveAlpha,
+            shockRadius: phys.shockwaveRadius
+          });
+        }
+      }
+    }
+
+    // === 2. LOKI SACRED TIMELINE: GPU-ACCELERATED MAIN TRUNK ===
+    ctx.save();
+    ctx.globalCompositeOperation = museumTheme ? 'source-over' : 'lighter';
+
+    const step = w > 1600 ? 6 : 5;
+
+    // Compute the animated trunk once, then reuse the same path for all layers.
+    ctx.beginPath();
+    ctx.moveTo(0, this.getTimelineY(0, t, cy, activeDeformers));
+    for (let x = step; x <= w; x += step) {
+      ctx.lineTo(x, this.getTimelineY(x, t, cy, activeDeformers));
+    }
+
+    // Layer 1: Wide green aura
+    ctx.strokeStyle = 'rgba(0, 102, 71, 0.18)';
+    ctx.lineWidth = 36;
+    ctx.stroke();
+
+    // Layer 2: Mid green plasma glow
+    ctx.strokeStyle = 'rgba(37, 124, 98, 0.42)';
+    ctx.lineWidth = 12;
+    ctx.stroke();
+
+    // Layer 3: Inner luminous electric core
+    ctx.strokeStyle = museumTheme ? 'rgba(0, 102, 71, 0.88)' : 'rgba(208, 226, 220, 0.92)';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.restore(); // Restore normal composite operation
+
+    // === 3. DYNAMIC CARD ENERGY BRANCHES & COLOR FUSION ===
+    if (this.timeline && this.timeline.nodes) {
+      const isDraggingAny = activeDeformers.length > 0;
+
+      for (let idx = 0; idx < this.timeline.nodes.length; idx++) {
+        const node = this.timeline.nodes[idx];
+        const cardX = node.baseX - scrollPos;
+
+        // Skip cards completely off-screen
+        if (cardX < -150 || cardX > w + 150) continue;
+
+        const isTop = idx % 2 === 0;
+        const phys = node.physics || { offsetX: 0, offsetY: 0, tension: 0, shockwaveRadius: 0, shockwaveAlpha: 0 };
+        const accentColor = '#006647';
+        const tension = phys.tension || 0;
+
+        // Root point on dynamically deformed axis
+        const rootX = cardX;
+        const rootY = this.getTimelineY(cardX, t, cy, activeDeformers);
+
+        // Contact point on card border
+        const targetX = cardX + phys.offsetX;
+        const targetY = isTop ? (cy - 50 + phys.offsetY) : (cy + 50 + phys.offsetY);
+
+        const dx = targetX - rootX;
+        const dy = targetY - rootY;
+
+        ctx.save();
+        ctx.globalCompositeOperation = museumTheme ? 'source-over' : 'lighter';
+
+        // 1. Fusion glow node on timeline
+        ctx.beginPath();
+        ctx.arc(rootX, rootY, 5 + tension * 6, 0, Math.PI * 2);
+        ctx.fillStyle = accentColor;
+        ctx.globalAlpha = 0.6 + tension * 0.4;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(rootX, rootY, 2 + tension * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = museumTheme ? '#006647' : '#D0E2DC';
+        ctx.globalAlpha = 0.9;
+        ctx.fill();
+
+        // 2. Braided plasma streams
+        const strandCount = tension > 0.25 ? 3 : 2;
+        for (let s = 0; s < strandCount; s++) {
+          const strandPhase = (s * Math.PI * 2) / strandCount;
+          const amp = (3 + tension * 8) * Math.sin(t * 3.5 + idx + strandPhase);
+
+          ctx.beginPath();
+          ctx.moveTo(rootX, rootY);
+
+          const cp1x = rootX + dx * 0.3 + Math.cos(t * 3 + strandPhase) * amp;
+          const cp1y = rootY + dy * 0.3;
+          const cp2x = rootX + dx * 0.7 - Math.cos(t * 3 + strandPhase) * amp * 0.8;
+          const cp2y = rootY + dy * 0.7;
+
+          ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, targetX, targetY);
+
+          // Outer stream
+          ctx.strokeStyle = accentColor;
+          ctx.globalAlpha = 0.5 + tension * 0.4;
+          ctx.lineWidth = (s === 0 ? 3.5 : 2) + tension * 2;
+          ctx.stroke();
+
+          // Inner white core
+          if (s === 0) {
+            ctx.strokeStyle = museumTheme ? '#006647' : '#D0E2DC';
+            ctx.globalAlpha = 0.85 + tension * 0.15;
+            ctx.lineWidth = 1.3 + tension;
+            ctx.stroke();
+          }
+        }
+
+        // 3. Electric corona arcs when pulled
+        if (tension > 0.15) {
+          const arcCount = Math.floor(2 + tension * 3);
+          for (let a = 0; a < arcCount; a++) {
+            const p1 = (a * 0.3) % 0.8;
+            const p2 = Math.min(1, p1 + 0.25);
+            const ax1 = rootX + dx * p1 + Math.sin(t * 12 + a) * 6 * tension;
+            const ay1 = rootY + dy * p1;
+            const ax2 = rootX + dx * p2 + Math.sin(t * 12 + a + 1) * 10 * tension;
+            const ay2 = rootY + dy * p2;
+            const midX = (ax1 + ax2) / 2 + Math.cos(t * 15 + a) * 16 * tension;
+            const midY = (ay1 + ay2) / 2;
+
+            ctx.beginPath();
+            ctx.moveTo(ax1, ay1);
+            ctx.quadraticCurveTo(midX, midY, ax2, ay2);
+            ctx.strokeStyle = a % 2 === 0 ? (museumTheme ? '#006647' : '#D0E2DC') : accentColor;
+            ctx.globalAlpha = 0.5 + tension * 0.4;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+          }
+        }
+
+        // 4. Gliding energy particles
+        const pulseT = (t * (1.2 + tension * 2.2) + idx * 0.35) % 1;
+        const px = rootX + dx * pulseT + Math.sin(t * 6 + idx) * (2.5 + tension * 5);
+        const py = rootY + dy * pulseT;
+
+        ctx.beginPath();
+        ctx.arc(px, py, 2 + tension * 1.5, 0, Math.PI * 2);
+        ctx.fillStyle = museumTheme ? '#006647' : '#D0E2DC';
+        ctx.globalAlpha = 0.9;
+        ctx.fill();
+
+        // 5. Seamless light fusion at the card border
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 7 + tension * 8, 0, Math.PI * 2);
+        ctx.fillStyle = accentColor;
+        ctx.globalAlpha = 0.6 + tension * 0.4;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 2.5 + tension * 2, 0, Math.PI * 2);
+        ctx.fillStyle = museumTheme ? '#006647' : '#D0E2DC';
+        ctx.globalAlpha = 0.9;
+        ctx.fill();
+
+        // 6. Restabilization Shockwave
+        if (phys.shockwaveAlpha && phys.shockwaveAlpha > 0.02) {
+          ctx.beginPath();
+          ctx.arc(cardX, targetY, phys.shockwaveRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = accentColor;
+          ctx.lineWidth = 3 * phys.shockwaveAlpha;
+          ctx.globalAlpha = phys.shockwaveAlpha;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(cardX, targetY, phys.shockwaveRadius * 1.3, 0, Math.PI * 2);
+          ctx.strokeStyle = museumTheme ? '#006647' : '#D0E2DC';
+          ctx.lineWidth = 1.5 * phys.shockwaveAlpha;
+          ctx.globalAlpha = phys.shockwaveAlpha * 0.7;
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    // === 4. ENERGY PARTICLES flowing along the line ===
+    ctx.save();
+    ctx.fillStyle = '#71AA99';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0, 102, 71, 0.65)';
+    for (const ep of this.energyP) {
+      ep.x += ep.speed * frameScale;
+      if (ep.x > w + 20) ep.x = -20;
+
+      const wy = this.getTimelineY(ep.x, t, cy) + ep.offset;
+      const pulse = 0.4 + Math.sin(t * 4 + ep.x * 0.02) * 0.3;
+      ctx.beginPath(); ctx.arc(ep.x, wy, ep.size, 0, Math.PI * 2);
+      ctx.globalAlpha = ep.brightness * pulse;
+      ctx.fill();
+    }
+    ctx.restore();
+
+    requestAnimationFrame(t => this.animate(t));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOUCH SCROLLER: momentum physics
+   ═══════════════════════════════════════════════════════════ */
+class Scroller {
+  constructor(el) {
+    this.el = el; this.pos = 0; this.target = 0;
+    this.dragging = false; this.hasMoved = false;
+    this.startX = 0; this.startPos = 0;
+    this.velocity = 0; this.lastX = 0; this.lastT = 0;
+    this.maxScroll = 0; this.track = el.querySelector('.scroll-track');
+    this.onScroll = null; this.isLooping = false; this.lastFrameTime = 0;
+
+    const opt = { passive: false };
+    el.addEventListener('mousedown', e => this.down(e.clientX, e), opt);
+    el.addEventListener('mousemove', e => this.move(e.clientX, e), opt);
+    el.addEventListener('mouseup', () => this.up());
+    el.addEventListener('mouseleave', () => this.up());
+    el.addEventListener('touchstart', e => this.down(e.touches[0].clientX, e), opt);
+    el.addEventListener('touchmove', e => this.move(e.touches[0].clientX, e), opt);
+    el.addEventListener('touchend', () => this.up());
+    el.addEventListener('wheel', e => {
+      e.preventDefault();
+      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+      this.target += delta * 1.35;
+      this.clamp();
+      this.setMoving(true);
+      this.requestUpdate();
+    }, opt);
+
+    this.calcMax();
+    window.addEventListener('resize', () => this.calcMax());
+    this.requestUpdate(false);
+  }
+  calcMax() {
+    this.maxScroll = Math.max(0, this.track.scrollWidth - this.el.clientWidth);
+    this.target = Math.max(0, Math.min(this.maxScroll, this.target));
+    this.pos = Math.max(0, Math.min(this.maxScroll, this.pos));
+  }
+  clamp() { this.target = Math.max(0, Math.min(this.maxScroll, this.target)); }
+  setMoving(moving) { document.body.classList.toggle('is-scrolling', moving); }
+  down(x, e) {
+    this.dragging = true; this.hasMoved = false;
+    this.startX = x; this.startPos = this.pos;
+    this.velocity = 0; this.lastX = x; this.lastT = performance.now();
+    document.body.classList.add('grabbing');
+    this.requestUpdate(false);
+  }
+  move(x, e) {
+    if (!this.dragging) return;
+    e.preventDefault();
+    const dx = x - this.startX;
+    if (Math.abs(dx) > 6) {
+      this.hasMoved = true;
+      this.setMoving(true);
+    }
+    this.target = this.startPos - dx;
+    this.clamp();
+    const now = performance.now(), dt = Math.max(1, now - this.lastT);
+    const sampleVelocity = (this.lastX - x) / dt * 16.667;
+    this.velocity = this.velocity * 0.35 + sampleVelocity * 0.65;
+    this.lastX = x; this.lastT = now;
+    this.requestUpdate();
+  }
+  cancelDrag() {
+    if (!this.dragging) return;
+    this.dragging = false;
+    this.velocity = 0;
+    this.target = this.pos;
+    document.body.classList.remove('grabbing');
+    this.requestUpdate();
+  }
+  up() {
+    if (!this.dragging) return;
+    this.dragging = false;
+    document.body.classList.remove('grabbing');
+    this.target += Math.max(-70, Math.min(70, this.velocity)) * 9;
+    this.clamp();
+    if (Math.abs(this.target - this.pos) > 0.3) this.setMoving(true);
+    this.requestUpdate();
+  }
+  scrollTo(x, instant) {
+    this.target = Math.max(0, Math.min(this.maxScroll, x));
+    if (instant) this.pos = this.target;
+    if (Math.abs(this.target - this.pos) > 0.3) this.setMoving(true);
+    this.requestUpdate();
+  }
+  requestUpdate(markMoving = true) {
+    if (markMoving && Math.abs(this.target - this.pos) > 0.3) this.setMoving(true);
+    if (!this.isLooping) {
+      this.isLooping = true;
+      this.lastFrameTime = 0;
+      requestAnimationFrame(t => this.loop(t));
+    }
+  }
+  loop(now) {
+    const dt = this.lastFrameTime ? Math.min(34, Math.max(8, now - this.lastFrameTime)) : 16.667;
+    this.lastFrameTime = now;
+    const diff = this.target - this.pos;
+    if (Math.abs(diff) < 0.3 && !this.dragging) {
+      this.pos = this.target;
+      this.track.style.transform = `translate3d(${-this.pos}px,0,0)`;
+      if (this.onScroll) this.onScroll(this.pos, this.maxScroll, 0);
+      this.isLooping = false;
+      this.setMoving(false);
+      return;
+    }
+    const response = this.dragging ? 0.08 : 0.018;
+    const follow = 1 - Math.exp(-response * dt);
+    const previousPos = this.pos;
+    this.pos += diff * follow;
+    const frameVelocity = (this.pos - previousPos) / dt;
+    this.track.style.transform = `translate3d(${-this.pos}px,0,0)`;
+    if (this.onScroll) this.onScroll(this.pos, this.maxScroll, frameVelocity);
+    requestAnimationFrame(t => this.loop(t));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TIMELINE: card generation & animations
+   ═══════════════════════════════════════════════════════════ */
+class Timeline {
+  constructor(track, scroller) {
+    this.track = track; this.scroller = scroller;
+    this.nodes = []; this.currentEra = '';
+    this.progressFill = document.getElementById('progressFill');
+    this.scrollHint = document.getElementById('scrollHint');
+    this.eraEl = document.getElementById('progressEra');
+    this.viewportWidth = innerWidth;
+    this.lastPhysicsTime = performance.now();
+    this.build();
+    this.refreshGeometry();
+    this.applyThemePalette();
+    this.scroller.onScroll = (pos, max, velocity) => this.onScroll(pos, max, velocity);
+    let resizeFrame = 0;
+    window.addEventListener('resize', () => {
+      cancelAnimationFrame(resizeFrame);
+      resizeFrame = requestAnimationFrame(() => {
+        this.refreshGeometry();
+        this.onScroll(this.scroller.pos, this.scroller.maxScroll, 0);
+      });
+    });
+  }
+  build() {
+    // Hero with 3D Animated Museu Logo (Icon Only, No Text)
+    this.track.innerHTML = `
+      <section class="hero">
+        <div class="hero-logo-container" id="heroLogoContainer">
+          <div class="logo-stage" id="logoStage">
+            <img class="logo-base" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI5NDYiIGhlaWdodD0iNjAwIiB2aWV3Qm94PSIwIDQwIDk0NiA2MDAiIHJvbGU9ImltZyI+CiAgPGcgZmlsbC1ydWxlPSJldmVub2RkIiBzaGFwZS1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiI+CiAgICA8IS0tIFVQUEVSIEdSRUVOIFdJTkdTIC0tPgogICAgPHBhdGggZD0iTTMwLDQyM2MtMS41OC0xNy41Ni00LjIyLTM0LjUyLTMuMDMtNTIuMzVDMjcuNjEsMzYxLjAzLDMwLDM1MS41MSwzMSwzNDJjLjE2LTEuNS0uMzktMy41OCwwLTVjNC4zMS0xNS42Myw5Ljg4LTM2LjQ4LDE5LTUwYzEwLjExLTE0Ljk5LDE5LjY0LTMwLjc5LDMyLjkzLTQzLjcxQzExNS45OCwyMTEuMTUsMTYyLjAzLDE4NS40NSwyMDYsMTcyYzEwLjAxLTMuMDYsMjAtNi4wNCwzMC05YzIuMTctLjY0LDQuODYtLjI5LDctMWMzNC4yMy0xMS4zMiw3Mi4xNy0xNC45MiwxMDgtMTljOTcuMzktMTEuMDksMTk1Ljg5LTMuMzcsMjkzLjE0LDguODljNDEuMjcsNS4yLDg0Ljk4LDEzLjM4LDEyNS4yLDIzLjEyYzEwLjQ0LDIuNTIsMjIuNTksNC42NywzMi42Niw3Ljk5YzMuNjksMS4yMiwxMi41OSw1LjE2LDE2LjA0LDQuOTRjNy4yNy0uNDYsMTMuNjQtNS43OSwxOS45Ni04Ljk0YzguMzgtNC4xOCwxNy4wMi03LjkzLDI1LjQ3LTExLjk4YzYuNDctMy4xLDEyLjczLTcuNTYsMTkuNTMtMTAuMDJjLTkuMi0zLjA3LTIwLjIyLTcuMDItMzAtOGMtMS41LS4xNS0zLjU4LC4zOS01LDBjLTI5LjM0LTguMDQtNTkuOS0xMS4yMi05MC0xNmMtODUuMy0xMy41My0xNzYuNTctMTguNTEtMjYzLTE4YzAsLjM0LDAsLjY3LDAsMWMtMTM1Ljg3LS42NS0zNjEuMjQsMjIuNjMtNDQzLDE0NmMtMTAuNDksMTUuODMtMTcuMTYsMzQuNjMtMjIuMDYsNTIuODJDMjAuNDYsMzQ5Ljk2LDIwLjk5LDM4Ny40NywzMCw0MjNaIiBmaWxsPSIjMDA2NjQ3Ii8+CiAgICA8cGF0aCBkPSJNNDksMzU0Yy44NS0xMC40Miw1LjIxLTE4LjMsOC0yOGM2LjczLTIzLjQsMjIuMy00NS44NywzOS44NC02My4xMmM2My4zMS02Mi4zLDE1OS45NC03Ni4yNCwyNDUuMjEtNzguMDFjMTEuMDItLjIzLDIxLjgzLDEuMDksMzIuNjQsMS4yM2M0MS42OCwuNTEsODMuMjMsMy43OSwxMjQuNjEsOS45MmMzMi41OCw0LjgzLDY0Ljc5LDEwLDk3LjEyLDE2LjQ2YzYuNjEsMS4zMywxMy45NywzLjg2LDIwLjU4LDQuNTJjMS41MSwuMTUsMy41Ny0uMzgsNSwwYzE1LjQsNC4xMywzMS4zNiw4LjQzLDQ2Ljk1LDEyLjFjNS4zNiwxLjI2LDQzLjUzLDExLjkxLDQ0LjkzLDExLjY1YzQuOTQtLjkzLDcuOTQtMy42NiwxMi4xMi01Ljc1YzEwLjAxLTQuOTksMjAtMTAuMDIsMzAtMTVjNC4wOS0yLjA0LDEzLjkxLTQuODMsMTYtOWMtMTcuNTEtMS43NS0zNS4wNi04LjUtNTIuMzktMTIuMjZjLTM3LjkzLTguMjEtNzYuMDMtMTUuMzQtMTE0LjMtMjEuNzRjLTU3LjM1LTkuNi0xMTcuMjEtMTYuNDEtMTc1LjExLTE4LjFjLTI2LjYzLS43Ny01My41NCwuMDQtODAuMiwxYzAsLjM0LDAsLjY3LDAsMWMtMTAuMjQtLjEyLTE5LjkzLC42NC0zMCwyYy0yMi42OSwzLjA2LTQ0LjY4LDQuNjEtNjcuMiw5LjgyYy0xLjg0LC40My00LjA2LS4yOS01LjgsLjE4QzE3NC45MSwxOTEuNSw5OC43MSwyMjkuNDYsNjMuOTQsMjk5Ljg4QzU3LjgsMzEyLjMsNDQuOCwzNDAuMjIsNDksMzU0WiIgZmlsbD0iIzAwNjY0NyIvPgogICAgPHBhdGggZD0iTTcxLDMxM2MxLjY5LDAsMi40NS0yLjQyLDMuMzMtMy44MkM4Ni41NSwyODkuNzIsMTEwLjMyLDI3MC4xLDEzMSwyNjBjMzkuMzMtMTkuMjEsODEuNzUtMjkuMDIsMTI1LjUzLTMxLjk4YzcyLjcxLTQuOTIsMTQ3LjUzLDUuMzksMjE4Ljc2LDIwLjQzYzEyLjY5LDIuNjgsMjUuMiw0LjQzLDM3LjQ3LDguMzRjMS42OCwuNTQsMy42NS0uMiw1LjI0LC4yMWMxNi43OCw0LjM2LDMzLjcxLDkuMDUsNTAuNDYsMTMuODhjOC45NywyLjU4LDE4Ljc0LDQuMDcsMjcuNTQsNy4xMmM2LjQxLDIuMjIsMTkuNTksOC4zNCwyNi4wNSw3Ljk0YzEwLjczLS42NiwzMy4xNy0xNi42OSw0NC45NS0yMC45NGMtNS44LTUuOC02MC4zOS0xNS41LTcyLjI0LTE5LjI1Yy0yOC42NC05LjA2LTU5Ljg3LTEzLjcxLTg5LjUxLTE5LjA5Yy01NC41LTkuODgtMTA5LjMzLTE2LjI5LTE2NC4zNC0xOC43OWMtMTUuNi0uNzEtMzEuMSwuOC00Ni41MSwxLjE4Yy0zMi4xNCwuODEtNjUuNDgsNC05Ni40LDEyLjk1Yy0yNi42Niw3LjcyLTUzLjY1LDE1LjcyLTc2LDMzYy0xOC42NiwxNC40My00My45NiwzNC4xOC01MSw1OFoiIGZpbGw9IiMwMDY2NDciLz4KICAgIDwhLS0gTE9XRVIgWUVMTE9XIFdJTkdTIC0tPgogICAgPHBhdGggZD0iTTkxMiwzMDBjMy42MywzMS4xLDYsNjIuNDktMi4wNCw5My40NGMtNTQuMywyMDkuMjUtNDA3LjUsMjA0LjU4LTU3NS44NSwxODQuNTNjLTMyLjQ2LTMuODYtNjQuNjEtOS4wNy05Ni43Mi0xNS4wMWMtMTIuNzctMi4zNi0yNi43MS02LjY5LTM5LjM5LTcuOTZjLTEuNTEtLjE1LTMuNTcsLjM4LTUsMGMtMTEuNjUtMy4xMi0yMy4yOS02LjEzLTM1LjE1LTkuMDJjLTIuMTctLjUzLTQuOC0uMy02Ljg1LS45OGMtNy41NC0yLjQ5LTE1LjU1LTMuNTgtMjMtNmMtMS4yNS0uNDEtMi43My0xLjgtNC0yYy01LjctLjg4LTUzLjgzLDI3LjctNjUsMzFjNi4xMyw2LjEzLDg4LjM5LDE4Ljk1LDEwMi44LDIxLjAzYzE1MS43NSwyMS45MSwzMDYuNjIsMzAuNTUsNDU4Ljk2LDcuMjljMTcuNjEtMi42OSwzNS4wOS02LjkxLDUyLjI0LTEwLjMyYzEuNTItLjMsMy41MSwuMzUsNSwwYzUwLjk0LTEyLjA1LDExNS42MS0zNC4xOCwxNTcuMzYtNjYuNUM4OTUuOTgsNDcyLjU2LDkyNC44NCw0MTYuNzEsOTE4LDMzOWMtLjctNy45NC0yLjM1LTMzLjA4LTYtMzlaIiBmaWxsPSIjRkZDQzAwIi8+CiAgICA8cGF0aCBkPSJNODk0LDM2OWMuMzgsNi43OS0zLjE5LDEzLjk1LTUuMDQsMjAuNDJjLTguNDIsMjkuNDMtMjQuNjcsNTYuNzQtNDcuOSw3Ny41OWMtNjIuMzMsNTUuOTYtMTQ4LjM0LDcwLTIyOS40NSw3My4xMmMtMTguMzgsLjctMzYuNjYtLjg1LTU0Ljg0LTEuMjNjLTQzLjQ4LS45LTg2LjkxLTUuMjUtMTMwLjA1LTEyLjA1Yy0zMS4yOC00LjkzLTYyLjUxLTkuNjUtOTMuNDItMTYuNzVjLTUuNzQtMS4zMS0xMi45NS0xLjM5LTE4LjMtMy4xYy0xOS41Mi02LjIzLTQwLjU0LTguNTktNjAtMTVjLTYuOTYtMi4yOS0xOC4wOC03LjI0LTI1LjIzLTcuNjljLTYuODMtLjQzLTQ5LjAzLDI0LjgxLTU5Ljc3LDI4LjY5YzcuMDcsNC40MiwyNC44LDUuNjksMzMuMjcsOC4yQzIzNy4wNSw1MzEuMjIsMjcyLjQsNTM2LjE5LDMwNyw1NDNjMzguNTgsNy42LDc4LjM1LDEyLjQ1LDExNy4yOSwxNi44NWMxMy40MiwxLjUyLDI3LjQsMS4zNyw0MC43MSwzLjE1YzIwLjI1LDIuNyw0MC42MSwyLjQxLDYxLjA1LDIuOTdjNTguOTMsMS42LDEyMS4xMi0uNTcsMTc4LjQ0LTE1LjA0YzM4LjIxLTkuNjQsNzEuNTYtMjYuMjEsMTA0LjE0LTQ4LjI4YzM4Ljc0LTI2LjI0LDY5LjIzLTYyLjIyLDgxLjQzLTEwNy40N2MyLjA3LTcuNjUsNi44Mi0xOC4xOCwzLjk0LTI2LjE4WiIgZmlsbD0iI0ZGQ0MwMCIvPgogICAgPHBhdGggZD0iTTg3MSw0MTNjLTEuNjUsMC0yLjA0LDEuNzItMi44NywzLjA2Yy0xNC44MiwyNC4wNi00Mi4xMSw0Mi4yNC02Ni44LDU0LjJjLTYxLjA5LDI5LjYtMTQxLjksMzEuMjQtMjA4LjYzLDI1LjY4Yy00OS40NS00LjExLTk5LjAxLTEyLjcyLTE0Ny40LTIzLjg0Yy0xMy41OS0zLjEyLTI4LjE4LTQuODItNDEuMy05LjFjLTE3Ljk4LTUuODYtMzcuMTktOC44My01NS0xNWMtNS41My0xLjkyLTI0LjU5LTkuMTYtMjkuMjktOC44NGMtNC4xNi4yOS00MC44NiwxOC41OS00NC43MSwyMS44NGMxOC41MiwzLjk3LDM2Ljg3LDEwLjgsNTUuMjcsMTUuMjhjOC4xNSwxLjk4LDE3LjE5LDIuNiwyNSw0LjkyYzMwLjk1LDkuMTgsNjMuODMsMTQuMzIsOTUuNzMsMTkuOGMxOS4zMiwzLjMyLDM5LjA4LDYuOTUsNTguNTYsOC45YzE2LjkxLDEuNywzMy44MiwzLjY4LDUwLjc3LDUuMDFjOC45MywuNzEsMTguOTItLjEyLDI3LjY3LDEuMDljMjQuMzcsMy4zNyw1Ny42NiwyLjI4LDgyLTFjMTkuNDEtMi42MiwzOS4wOC0zLjU4LDU4LjQyLTcuMTJjMzAuNDgtNS41OSw2My41NS0xOC41LDg5LjU4LTM1Ljg4YzE5LjQ2LTEyLjk5LDQ2LjExLTM1LjY3LDUzLTU5WiIgZmlsbD0iI0ZGQ0MwMCIvPgogIDwvZz4KPC9zdmc+" alt="Museu de Ciências Nucleares" draggable="false">
+            <span class="orbit-shadow-layer" aria-hidden="true">
+              <span class="orbit-shadow" id="yellowShadow"></span>
+              <span class="orbit-shadow" id="greenShadow"></span>
+            </span>
+            <span class="orbit-anchor" id="yellowAnchor" aria-hidden="true">
+              <span class="sphere sphere-yellow" id="yellowSphere"></span>
+            </span>
+            <span class="orbit-anchor" id="greenAnchor" aria-hidden="true">
+              <span class="sphere sphere-green" id="greenSphere"></span>
+            </span>
+          </div>
+        </div>
+        <h2>A História da Radiação</h2>
+        <p>De Röntgen ao Futuro: uma jornada pela luz invisível que transformou a humanidade.</p>
+        <div class="scroll-hint" id="scrollHint">
+          <span>Arraste para explorar</span>
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+      </section>`;
+
+    let lastEra = '';
+    EVENTS.forEach((ev, i) => {
+      // Era divider
+      if (ev.era !== lastEra) {
+        lastEra = ev.era;
+        this.track.insertAdjacentHTML('beforeend',
+          `<div class="era-divider"><span>${ev.era}</span></div>`);
+      }
+      const pos = i % 2 === 0 ? 'top' : 'bottom';
+      const node = document.createElement('div');
+      node.className = `event-node ${pos}`;
+      const accent = currentEventColor(i);
+      node.style.setProperty('--accent', accent);
+      node.dataset.era = ev.era;
+      node.innerHTML = `
+        <div class="event-card" data-index="${i}">
+          <div class="card-illustration">${renderCardIllustration(ev)}</div>
+          <div class="card-body">
+          <div class="card-title">${ev.title}</div>
+            <div class="card-scientist">${ev.scientist}</div>
+            <div class="card-desc">${ev.desc}</div>
+            <button class="card-toggle">
+              <span>Saiba mais</span>
+              <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+          </div>
+        </div>`;
+      // Initialize physics object for elastic timeline tethering
+      node.physics = {
+        offsetX: 0,
+        offsetY: 0,
+        targetX: 0,
+        targetY: 0,
+        vx: 0,
+        vy: 0,
+        tension: 0,
+        isDragging: false,
+        shockwaveRadius: 0,
+        shockwaveAlpha: 0,
+        restabilizing: false,
+        lastRenderX: Number.NaN,
+        lastRenderY: Number.NaN,
+        lastTilt: Number.NaN,
+        lastGlow: 0
+      };
+
+      const card = node.querySelector('.event-card');
+      const toggleBtn = node.querySelector('.card-toggle');
+      node.card = card;
+      node.illustration = node.querySelector('.card-illustration');
+      bindGallery(card);
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'article');
+      toggleBtn.setAttribute('aria-haspopup', 'dialog');
+
+      const showEvent = (e, source = card) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        openEventModal(ev, i, source);
+      };
+
+      // Pointer drag interaction with elastic tension
+      let pointerStartX = 0, pointerStartY = 0;
+      let pointerStartTime = 0;
+      let isDraggingThisCard = false;
+
+      card.addEventListener('pointerdown', (e) => {
+        if (e.target.closest('.card-toggle, .card-thumb')) return;
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+        pointerStartTime = performance.now();
+        isDraggingThisCard = false;
+        card.setPointerCapture(e.pointerId);
+      });
+
+      card.addEventListener('pointermove', (e) => {
+        if (!card.hasPointerCapture(e.pointerId)) return;
+        const dx = e.clientX - pointerStartX;
+        const dy = e.clientY - pointerStartY;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 6) {
+          if (!isDraggingThisCard) this.scroller.cancelDrag();
+          isDraggingThisCard = true;
+          node.physics.isDragging = true;
+          card.classList.add('is-dragging');
+
+          // Elastic rubber-band resistance (straining against temporal tether)
+          const maxDisplacement = 180;
+          const resistedDist = maxDisplacement * Math.tanh(dist / (maxDisplacement * 1.2));
+          const angle = Math.atan2(dy, dx);
+
+          node.physics.targetX = Math.cos(angle) * resistedDist;
+          node.physics.targetY = Math.sin(angle) * resistedDist;
+          node.physics.tension = resistedDist / maxDisplacement;
+
+        }
+      });
+
+      const releaseCard = (e) => {
+        if (!card.hasPointerCapture(e.pointerId)) return;
+        card.releasePointerCapture(e.pointerId);
+
+        const endX = Number.isFinite(e.clientX) ? e.clientX : pointerStartX;
+        const endY = Number.isFinite(e.clientY) ? e.clientY : pointerStartY;
+        const clickDuration = performance.now() - pointerStartTime;
+        const moveDist = Math.hypot(endX - pointerStartX, endY - pointerStartY);
+
+        if (isDraggingThisCard && moveDist > 8) {
+          // Released after drag: trigger immediate restabilization snapback & shockwave
+          node.physics.isDragging = false;
+          node.physics.targetX = 0;
+          node.physics.targetY = 0;
+          node.physics.restabilizing = true;
+          node.physics.shockwaveRadius = 8;
+          node.physics.shockwaveAlpha = 1.0;
+          card.classList.remove('is-dragging');
+          card.classList.add('is-snapping');
+
+          if (navigator.vibrate) navigator.vibrate(25);
+        } else if (clickDuration < 350 && moveDist < 8) {
+          // Clean tap: open the full historical record in the central modal
+          showEvent(e);
+        }
+
+        isDraggingThisCard = false;
+      };
+
+      card.addEventListener('pointerup', releaseCard);
+      card.addEventListener('pointercancel', releaseCard);
+
+      toggleBtn.addEventListener('click', (e) => {
+        showEvent(e, e.currentTarget);
+      });
+
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showEvent(e);
+        }
+      });
+
+      this.track.appendChild(node);
+      this.nodes.push(node);
+    });
+
+    // End section
+    this.track.insertAdjacentHTML('beforeend', `
+      <section class="end-section">
+        <div class="end-top">
+          <h2>A Jornada Continua</h2>
+        </div>
+        <div class="end-bottom">
+          <p>Cada descoberta nos ensinou que a radiação é uma ferramenta poderosa, e que o conhecimento é nossa maior proteção.</p>
+          <button class="restart-btn" id="restartBtn">↺ Voltar ao Início</button>
+        </div>
+      </section>`);
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      this.scroller.scrollTo(0);
+      this.nodes.forEach(n => n.querySelector('.event-card').classList.remove('expanded'));
+    });
+
+    // Recalc max scroll after DOM render
+    requestAnimationFrame(() => {
+      this.scroller.calcMax();
+      this.refreshGeometry();
+      this.onScroll(this.scroller.pos, this.scroller.maxScroll, 0);
+    });
+  }
+  refreshGeometry() {
+    this.viewportWidth = this.scroller.el.clientWidth || innerWidth;
+    this.nodes.forEach(node => {
+      node.baseX = node.offsetLeft + node.offsetWidth / 2;
+      node.halfWidth = node.offsetWidth / 2;
+    });
+  }
+  applyThemePalette() {
+    this.nodes.forEach((node, i) => {
+      const accent = currentEventColor(i);
+      node.style.setProperty('--accent', accent);
+    });
+    this.currentEra = '';
+    this.onScroll(this.scroller.pos, this.scroller.maxScroll);
+  }
+  updatePhysics(now = performance.now()) {
+    const frameScale = Math.min(2, Math.max(0.5, (now - this.lastPhysicsTime) / 16.667));
+    this.lastPhysicsTime = now;
+    const directDamping = Math.pow(0.84, frameScale);
+    const dragFollow = 1 - Math.pow(0.55, frameScale);
+
+    this.nodes.forEach(node => {
+      const phys = node.physics;
+      const card = node.card;
+      if (!phys || !card) return;
+
+      if (phys.isDragging) {
+        phys.offsetX += (phys.targetX - phys.offsetX) * dragFollow;
+        phys.offsetY += (phys.targetY - phys.offsetY) * dragFollow;
+        phys.vx = 0;
+        phys.vy = 0;
+      } else {
+        phys.vx = (phys.vx + (phys.targetX - phys.offsetX) * 0.14 * frameScale) * directDamping;
+        phys.vy = (phys.vy + (phys.targetY - phys.offsetY) * 0.14 * frameScale) * directDamping;
+        phys.offsetX += phys.vx * frameScale;
+        phys.offsetY += phys.vy * frameScale;
+
+        const currentDist = Math.hypot(phys.offsetX, phys.offsetY);
+        phys.tension = Math.min(1, currentDist / 140);
+        if (currentDist < 0.3 && Math.abs(phys.vx) < 0.1 && Math.abs(phys.vy) < 0.1) {
+          phys.offsetX = 0;
+          phys.offsetY = 0;
+          phys.vx = 0;
+          phys.vy = 0;
+          phys.tension = 0;
+          phys.restabilizing = false;
+          card.classList.remove('is-snapping');
+        }
+      }
+
+      if (phys.shockwaveAlpha > 0.01) {
+        phys.shockwaveRadius += 3.8 * frameScale;
+        phys.shockwaveAlpha *= Math.pow(0.93, frameScale);
+      }
+
+      const jitterX = phys.isDragging && phys.tension > 0.3 ? (Math.random() - 0.5) * phys.tension * 4 : 0;
+      const jitterY = phys.isDragging && phys.tension > 0.3 ? (Math.random() - 0.5) * phys.tension * 4 : 0;
+      const renderX = phys.offsetX + jitterX;
+      const renderY = phys.offsetY + jitterY;
+      const tilt = Math.max(-10, Math.min(10, (phys.offsetX / 180) * 8));
+      const firstRender = Number.isNaN(phys.lastRenderX);
+      const transformChanged = firstRender || Math.abs(renderX - phys.lastRenderX) > 0.04 ||
+        Math.abs(renderY - phys.lastRenderY) > 0.04 || Math.abs(tilt - phys.lastTilt) > 0.02;
+
+      if (transformChanged && (firstRender || node.isVisible || phys.isDragging || phys.restabilizing)) {
+        card.style.transform = `translate3d(${renderX.toFixed(2)}px,${renderY.toFixed(2)}px,0) rotate(${tilt.toFixed(2)}deg)`;
+        phys.lastRenderX = renderX;
+        phys.lastRenderY = renderY;
+        phys.lastTilt = tilt;
+      }
+
+      if (phys.tension > 0.15) {
+        if (Math.abs(phys.tension - phys.lastGlow) > 0.035) {
+          const glowSize = Math.floor(16 + phys.tension * 32);
+          card.style.boxShadow = `0 16px 40px rgba(0,0,0,0.4),0 0 ${glowSize}px var(--accent),0 0 ${Math.floor(phys.tension * 18)}px #fff`;
+          phys.lastGlow = phys.tension;
+        }
+      } else if (phys.lastGlow !== 0) {
+        card.style.boxShadow = '';
+        phys.lastGlow = 0;
+      }
+    });
+  }
+  updateViewportState(pos) {
+    const width = this.viewportWidth;
+    let currentEra = '';
+
+    this.nodes.forEach(node => {
+      const halfWidth = node.halfWidth || 0;
+      const left = node.baseX - halfWidth - pos;
+      const right = left + halfWidth * 2;
+      const visible = right > -200 && left < width + 200;
+      const active = right > -100 && left < width + 100 && left > width * 0.2 && left < width * 0.6;
+
+      if (visible !== node.isVisible) {
+        node.isVisible = visible;
+        node.classList.toggle('visible', visible);
+      }
+      if (active !== node.isActive) {
+        node.isActive = active;
+        node.classList.toggle('active', active);
+      }
+      if (left < width * 0.5 && right > 0) currentEra = node.dataset.era;
+    });
+
+    return currentEra;
+  }
+  checkVisibility() { this.updateViewportState(this.scroller.pos); }
+  onScroll(pos, max) {
+    const progress = max > 0 ? pos / max : 0;
+    this.progressFill.style.transform = `scaleX(${Math.max(0, Math.min(1, progress)).toFixed(5)})`;
+
+    if (this.scrollHint) this.scrollHint.classList.toggle('hidden', pos > 50);
+
+    const currentEra = this.updateViewportState(pos);
+    if (currentEra && currentEra !== this.currentEra) {
+      this.currentEra = currentEra;
+      this.eraEl.textContent = currentEra;
+      this.eraEl.classList.add('visible');
+      const eventIndex = EVENTS.findIndex(e => e.era === currentEra);
+      if (eventIndex >= 0) this.eraEl.style.color = currentEventColor(eventIndex);
+    }
+    if (pos < 10) this.eraEl.classList.remove('visible');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS: configuration panel
+   ═══════════════════════════════════════════════════════════ */
+class Settings {
+  constructor(scroller, timeline) {
+    this.scroller = scroller; this.timeline = timeline;
+    this.panel = document.getElementById('settingsPanel');
+    this.open = false;
+    this.idleTimer = null; this.idleTimeout = 120000; // 2 min
+
+    document.getElementById('settingsBtn').addEventListener('click', () => this.toggle());
+    document.getElementById('ctrlSpeed').addEventListener('input', e => {
+      document.documentElement.style.setProperty('--speed', e.target.value);
+    });
+    document.getElementById('ctrlFont').addEventListener('input', e => {
+      document.documentElement.style.setProperty('--font-base', e.target.value + 'px');
+    });
+    document.getElementById('ctrlContrast').addEventListener('click', e => {
+      const museumTheme = document.body.classList.toggle('high-contrast');
+      e.currentTarget.classList.toggle('active', museumTheme);
+      this.timeline.applyThemePalette();
+    });
+    document.getElementById('ctrlReset').addEventListener('click', () => {
+      this.scroller.scrollTo(0);
+      this.timeline.nodes.forEach(n => n.querySelector('.event-card').classList.remove('expanded'));
+      this.toggle();
+    });
+
+    // Close panel on outside click
+    document.addEventListener('click', e => {
+      if (this.open && !this.panel.contains(e.target) && e.target.id !== 'settingsBtn') {
+        this.toggle();
+      }
+    });
+
+    // Auto-reset on idle
+    this.resetIdle();
+    ['mousemove','touchstart','wheel','keydown'].forEach(ev =>
+      document.addEventListener(ev, () => this.resetIdle())
+    );
+  }
+  toggle() {
+    this.open = !this.open;
+    this.panel.classList.toggle('open', this.open);
+  }
+  resetIdle() {
+    clearTimeout(this.idleTimer);
+    this.idleTimer = setTimeout(() => {
+      this.scroller.scrollTo(0);
+      this.timeline.nodes.forEach(n => n.querySelector('.event-card').classList.remove('expanded'));
+    }, this.idleTimeout);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MUSEU 3D ORBIT LOGO ANIMATOR
+   ═══════════════════════════════════════════════════════════ */
+class LogoAnimator {
+  constructor() {
+    this.stage = document.getElementById('logoStage');
+    if (!this.stage) return;
+    this.yellowAnchor = document.getElementById('yellowAnchor');
+    this.greenAnchor = document.getElementById('greenAnchor');
+    this.yellow = document.getElementById('yellowSphere');
+    this.green = document.getElementById('greenSphere');
+    this.yellowShadow = document.getElementById('yellowShadow');
+    this.greenShadow = document.getElementById('greenShadow');
+
+    this.radiusX = 79;
+    this.radiusY = 18;
+    this.speed = (Math.PI * 2) / 6400;
+    this.motionTime = 0;
+    this.lastTime = performance.now();
+    this.stageScale = this.stage.getBoundingClientRect().width / 946;
+    this.running = false;
+    this.inViewport = true;
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => {
+        if (this.stage) this.stageScale = this.stage.getBoundingClientRect().width / 946;
+      }).observe(this.stage);
+    }
+
+    if (window.IntersectionObserver) {
+      this.visibilityObserver = new IntersectionObserver(entries => {
+        this.inViewport = entries[0]?.isIntersecting ?? true;
+        this.updateRunningState();
+      }, { rootMargin: '120px' });
+      this.visibilityObserver.observe(this.stage);
+    }
+    document.addEventListener('visibilitychange', () => this.updateRunningState());
+    this.updateRunningState();
+  }
+  updateRunningState() {
+    const shouldRun = this.inViewport && !document.hidden && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (shouldRun && !this.running) {
+      this.running = true;
+      this.lastTime = performance.now();
+      this.animationFrame = requestAnimationFrame(t => this.animate(t));
+    } else if (!shouldRun && this.running) {
+      this.running = false;
+      cancelAnimationFrame(this.animationFrame);
+    }
+  }
+  place(anchor, sphere, shadow, x, y, depth, front, lightX, lightY) {
+    const isYellow = sphere === this.yellow;
+    const scale = 1 + depth * 0.052;
+    const contactAlpha = front
+      ? Math.min(isYellow ? 0.2 : 0.46, Math.abs(depth) * (isYellow ? 0.24 : 0.58))
+      : 0;
+    const contactX = (isYellow ? -lightX * 3.1 : lightX * 4.5) * this.stageScale;
+    const contactY = (isYellow ? Math.max(1.5, 1.8 - lightY * 2.4) : lightY * 4.5) * this.stageScale;
+    const contactBlur = (isYellow ? 10.5 : 7.5) * this.stageScale;
+    const shadowColor = isYellow ? '122 83 10' : '0 0 0';
+    anchor.style.zIndex = front ? '4' : '2';
+    anchor.style.transform = `translate3d(${(x * this.stageScale).toFixed(3)}px,${(y * this.stageScale).toFixed(3)}px,0)`;
+    shadow.style.setProperty('--shadow-x', `${(x * this.stageScale).toFixed(3)}px`);
+    shadow.style.setProperty('--shadow-y', `${(y * this.stageScale).toFixed(3)}px`);
+    sphere.style.transform = `translate(-50%, -50%) scale(${scale.toFixed(4)})`;
+    sphere.style.filter = `brightness(${(1 + depth * 0.055).toFixed(4)}) saturate(${(1 + depth * 0.035).toFixed(4)}) drop-shadow(${contactX.toFixed(3)}px ${contactY.toFixed(3)}px ${contactBlur.toFixed(3)}px rgb(${shadowColor} / ${contactAlpha.toFixed(3)}))`;
+    sphere.style.setProperty('--hx', (50 + lightX * 25).toFixed(2) + '%');
+    sphere.style.setProperty('--hy', (38 + lightY * 20).toFixed(2) + '%');
+    // A sombra de volume permanece na borda oposta ao brilho, nunca no centro.
+    sphere.style.setProperty('--sx', (76 - lightX * 10).toFixed(2) + '%');
+    sphere.style.setProperty('--sy', (78 - lightY * 8).toFixed(2) + '%');
+    shadow.style.opacity = isYellow
+      ? (0.12 + (depth + 1) * 0.035).toFixed(3)
+      : (0.24 + (depth + 1) * 0.08).toFixed(3);
+    shadow.style.transform = `translate(-50%, -50%) scaleX(${(1 - depth * 0.12).toFixed(3)}) scaleY(${(0.78 + depth * 0.08).toFixed(3)})`;
+  }
+  render(angle) {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const yellowInFront = sin >= 0;
+
+    this.place(this.yellowAnchor, this.yellow, this.yellowShadow, this.radiusX * cos, this.radiusY * sin, sin, yellowInFront, -cos, -sin);
+    this.place(this.greenAnchor, this.green, this.greenShadow, -this.radiusX * cos, -this.radiusY * sin, -sin, !yellowInFront, cos, sin);
+  }
+  animate(now = performance.now()) {
+    if (!this.running) return;
+    this.motionTime += now - this.lastTime;
+    this.lastTime = now;
+    this.render((this.motionTime * this.speed) % (Math.PI * 2));
+    this.animationFrame = requestAnimationFrame(t => this.animate(t));
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  const particles = new Particles(document.getElementById('particles'));
+  const container = document.getElementById('scrollContainer');
+  const scroller = new Scroller(container);
+  const timeline = new Timeline(document.getElementById('scrollTrack'), scroller);
+  const settings = new Settings(scroller, timeline);
+  const logoAnimator = new LogoAnimator();
+  particles.setRefs(timeline, scroller);
+
+  // Keyboard navigation for accessibility
+  window.addEventListener('keydown', e => {
+    const step = 420;
+    switch(e.key) {
+      case 'ArrowRight': case 'PageDown':
+        e.preventDefault(); scroller.scrollTo(scroller.target + step); break;
+      case 'ArrowLeft': case 'PageUp':
+        e.preventDefault(); scroller.scrollTo(scroller.target - step); break;
+      case 'Home':
+        e.preventDefault(); scroller.scrollTo(0); break;
+      case 'End':
+        e.preventDefault(); scroller.scrollTo(scroller.maxScroll); break;
+      case 'Escape':
+        if (settings.open) settings.toggle();
+        timeline.nodes.forEach(n => {
+          const card = n.querySelector('.event-card');
+          card.classList.remove('expanded');
+          card.querySelector('.card-toggle').setAttribute('aria-haspopup', 'dialog');
+          card.querySelector('.card-toggle span').textContent = 'Saiba mais';
+        });
+        break;
+    }
+  });
+});
+</script>
+</body>
+</html>
